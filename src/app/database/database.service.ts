@@ -21,6 +21,25 @@ export class DatabaseService {
     }));
   }
 
+  saveUserProfile(userId: string, email: string, hashedPassword: string): Observable<void> {
+    const userRef = doc(this.firestore, `users/${userId}`);
+    return from(setDoc(userRef, {
+      email,
+      hashedPassword,
+      roles: ['STUDENT'], // de exemplu, implicit toți utilizatorii noi pot avea rolul student
+      createdAt: new Date()
+    })).pipe(
+      tap(() => console.log(`User profile saved for ${email}`))
+    );
+  }
+
+  getUserProfile(userId: string): Observable<any> {
+    const userRef = doc(this.firestore, `users/${userId}`);
+    return from(getDoc(userRef)).pipe(
+      map((docSnap) => (docSnap.exists() ? docSnap.data() : null))
+    );
+  }
+
   deleteUser(userId: string): Observable<void> {
     const userRef = doc(this.firestore, `users/${userId}`);
     return from(deleteDoc(userRef));
@@ -42,6 +61,12 @@ export class DatabaseService {
         u['roles']
       )))
     );
+  }
+
+  updateUserPassword(userId: string, newPassword: string): Observable<void> {
+    const hashedPassword = btoa(newPassword);
+    const userRef = doc(this.firestore, `users/${userId}`);
+    return from(updateDoc(userRef, { hashedPassword }));
   }
 
   getUserById(userId: string): Observable<User | null> {

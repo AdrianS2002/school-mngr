@@ -1,0 +1,78 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.btnGroup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btnGroup button {
+    flex: 1;
+    text-align: center;
+}
+
+
+.auth-container {
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+    padding: var(--padding-lg);
+    border-radius: var(--border-radius);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    margin: 1rem;
+}
+
+.btn-link {
+    color: var(--button-bg);
+    font-style: italic;
+    background-color: var(--secondary-bg);
+}
+
+
+@media (max-width: 768px) {
+    .auth-container {
+        max-width: 90%;
+        margin: 80px auto;
+    }
+}
+
+@media (max-width: 480px) {
+    h3 {
+        font-size: 18px;
+    }
+
+    .btnGroup {
+        flex-direction: row;
+        gap: 0.3rem;
+    }
+
+    .btn-link {
+        font-size: 13px;
+        border: 1px solid var(--button-bg);
+    }
+
+
+    button {
+        font-size: 10px;
+    }
+
+    input {
+        font-size: 14px;
+        padding: 8px;
+    }
+}

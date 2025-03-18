@@ -1,1 +1,123 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --font-primary: 'Poppins', sans-serif;
+    
+    --primary-bg: #d3d5d6d7;
+    --secondary-bg: #373c4f;
+    --text-color: #f0ffff;
+    --secondary-text-color: #495057;
+    --button-bg: #b48add;
+    --button-hover-bg: #a676d1;
+    --input-bg: #fff;
+    --input-text: #373c4f;
+    --border-color: rgba(255, 255, 255, 0.2);
+
+    --padding-lg: 2rem;
+    --padding-md: 1rem;
+    --border-radius: 10px;
+}
+
+/* Global reset & base font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-primary);
+    align-content: center;
+}
+
+/* Alerts / Error Messages */
+.alert-danger, .error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    padding: var(--padding-md);
+    border-radius: var(--border-radius);
+    border: 1px solid #f5c6cb;
+    text-align: center;
+    margin-bottom: var(--padding-md);
+    font-weight: bold;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: var(--padding-md);
+    font-size: 16px;
+    border: 2px solid var(--input-text);
+    border-radius: var(--border-radius);
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+input:focus {
+    border-color: var(--button-bg);
+}
+
+/* Buttons */
+button {
+    padding: var(--padding-md) var(--padding-lg);
+    font-size: 16px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.btn-secondary {
+    background-color: var(--input-text);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-bg);
+}
+
+button:disabled {
+    background-color: rgba(233, 69, 96, 0.5);
+    cursor: not-allowed;
+}
+
+/* Spinner (loading) */
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-left-color: var(--button-bg);
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    animation: spin 1s linear infinite;
+    margin: var(--padding-md) auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+html,
+body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: var(--primary-bg);
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
