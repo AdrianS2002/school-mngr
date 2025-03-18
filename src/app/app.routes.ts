@@ -5,4 +5,5 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 export const routes: Routes = [
     { path: 'auth', component: AuthComponent },
     { path: 'forgot-password', component: ForgotPasswordComponent },
+    { path: '', redirectTo: '/auth', pathMatch: 'full' }
 ];
