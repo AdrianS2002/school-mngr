@@ -1,0 +1,45 @@
+.contact {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: var(--padding-lg);
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.contact h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.contact p {
+    font-size: 1.1rem;
+    margin: 8px 0;
+    color: var(--text-color);
+}
+
+.contact p a {
+    color: var(--button-bg);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.contact p a:hover {
+    text-decoration: underline;
+}
+
+img{
+    width: 34px;
+    height: 34px;
+}
+
+.contact-info{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}

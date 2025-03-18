@@ -33,13 +33,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateToLogin() {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth']);
   }
-
-  navigateToSignup() {
-    this.router.navigate(['/signup']);
-  }
-
 
   navigateToHome() {
     this.router.navigate(['/home']);
