@@ -16,7 +16,7 @@ interface AuthResponseData {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiKey = "AIzaSyAG0p3cIuFKvviUfmOAk6CvcdMIW-4IsPE";
+  private apiKey = "AIzaSyCCfSeX7KbzeSLcD6z9sKJ8BJ4gxGJlTn0";
   private signUpUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${this.apiKey}`;
   private loginUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${this.apiKey}`;
   private resetPasswordUrl = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${this.apiKey}`;
@@ -42,21 +42,22 @@ export class AuthService {
       password,
       returnSecureToken: true
     }).pipe(
+      tap((res) => console.log('AuthService SIGNUP success:', res)),
       switchMap((resData) => {
         if (!resData.localId) {
           return throwError(() => new Error("User creation failed"));
         }
         return this.sendVerificationEmail(resData.idToken).pipe(
-          switchMap(() => {
-            return this.databaseService.saveUserProfile(resData.localId, email, hashedPassword);
-          }),
+          switchMap(() =>
+            this.databaseService.saveUserProfile(resData.localId, email, hashedPassword)
+          ),
           map(() => resData)
         );
       }),
-      tap(() => {
-        console.log("User signed up successfully");
-      }),
-      catchError(this.handleError)
+      catchError((err) => {
+        console.error('AuthService SIGNUP error:', err);
+        return this.handleError(err);
+      })
     );
   }
 

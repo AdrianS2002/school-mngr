@@ -44,12 +44,31 @@ export class AuthEffects {
       ofType(AuthActions.signupStart),
       mergeMap((action) =>
         this.authService.signup(action.email, action.password).pipe(
+          tap((res) => console.log('Signup effect received:', res)),
           map(() =>
             AuthActions.signupSuccess({ message: 'Verification email sent! Please check your inbox.' })
           ),
-          catchError((error) => of(AuthActions.signupFail({ error: error.message })))
+          catchError((error) => {
+            console.error('Signup effect error:', error);
+            return of(AuthActions.signupFail({ error: error.message }));
+          })
         )
       )
     )
   );
+  
+  resetPassword$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.resetPasswordStart),
+      mergeMap(action =>
+        this.authService.resetPassword(action.email).pipe(
+          map(() =>
+            AuthActions.resetPasswordSuccess({ message: 'If an account exists with this email, a reset link has been sent. Check your inbox!' })
+          ),
+          catchError((error) => of(AuthActions.resetPasswordFail({ error: error.message })))
+        )
+      )
+    )
+  );
+  
 }

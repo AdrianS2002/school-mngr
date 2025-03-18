@@ -12,13 +12,23 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 
 const firebaseConfig = {
+
   apiKey: "AIzaSyCCfSeX7KbzeSLcD6z9sKJ8BJ4gxGJlTn0",
+
   authDomain: "school-mngr.firebaseapp.com",
+
   projectId: "school-mngr",
-  storageBucket: "school-mngr.appspot.com",
+
+  storageBucket: "school-mngr.firebasestorage.app",
+
   messagingSenderId: "1017728898774",
-  appId: "1:1017728898774:web:e08fb4b5438f383beadb77"
+
+  appId: "1:1017728898774:web:e08fb4b5438f383beadb77",
+
+  measurementId: "G-PDPCBKWW1L"
+
 };
+
 
 console.log("Bootstrapping Application..."); // Debugging
 
