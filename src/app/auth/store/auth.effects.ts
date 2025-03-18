@@ -12,26 +12,42 @@ export class AuthEffects {
     private actions$: Actions,
     private authService: AuthService,
     private router: Router
-  ) {
-    console.log('AuthEffects instantiated', this.actions$);
-  }
+  ) {}
 
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.loginStart),
-      tap(action => console.log("Login Action Dispatched", action)), // Debugging
-      mergeMap(action =>
+      mergeMap((action) =>
         this.authService.login(action.email, action.password).pipe(
-          map(authRes => {
-            console.log("Login Successful!", authRes); // Debugging
+          map((authRes) => {
             const expirationDate = new Date(new Date().getTime() + +authRes.expiresIn * 1000);
             const user = new User(authRes.email, authRes.localId, authRes.idToken, expirationDate, []);
             return AuthActions.loginSuccess({ user });
           }),
-          catchError(error => {
-            console.error("Login Failed", error); // Debugging
-            return of(AuthActions.loginFail({ error: error.message }));
-          })
+          catchError((error) => of(AuthActions.loginFail({ error: error.message })))
+        )
+      )
+    )
+  );
+
+  loginRedirect$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.loginSuccess),
+        tap(() => this.router.navigate(['/home']))
+      ),
+    { dispatch: false }
+  );
+
+  signup$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.signupStart),
+      mergeMap((action) =>
+        this.authService.signup(action.email, action.password).pipe(
+          map(() =>
+            AuthActions.signupSuccess({ message: 'Verification email sent! Please check your inbox.' })
+          ),
+          catchError((error) => of(AuthActions.signupFail({ error: error.message })))
         )
       )
     )
