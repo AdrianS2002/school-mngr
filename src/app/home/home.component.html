@@ -1,0 +1,81 @@
+<div *ngIf="!(user$ | async)">
+  <p>Please log in to see your courses.</p>
+</div>
+<div class="home-container">
+  <div class="title">
+    <h1>Welcome to SchoolMngr!</h1>
+  </div>
+
+  <ng-container *ngIf="(isAuthenticated$ | async) === false">
+    <div class="guest-message">
+      <div class="msg-format">
+        <img src="startup.png" alt="Startup" />
+        <p>
+          Unlock your learning potential! Log in to access exclusive courses,
+          track progress, and learn from top educators.
+        </p>
+      </div>
+      <button class="login" (click)="navigateToLogin()">Login Now</button>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="isProfessor$ | async">
+    <div class="professor-message">
+      <h2>Welcome, Professor!</h2>
+      <div class="msg-format">
+        <img src="academic.png" alt="Professor" />
+        <p>Share your knowledge by creating courses for students eager to learn.</p>
+      </div>
+      <button class="new-course" (click)="navigateToCreateCourse()">
+        Create a New Course
+      </button>
+    </div>
+  </ng-container>
+
+
+  <ng-container *ngIf="isAdmin$ | async">
+    <div class="admin-message">
+      <h2>Welcome, Admin!</h2>
+      <div class="msg-format">
+        <img src="manager.png" alt="Admin" />
+        <p>Mange students and personnel</p>
+      </div>
+      <button class="new-course" (click)="navigateToManageUsers()">
+        Manage Users
+      </button>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="isStudent$ | async">
+    <div class="student-motivation">
+      <h2>Your Enrolled Courses <img src="stack-of-books.png" alt="Books" /></h2>
+    </div>
+
+    <div class="student-message">
+      <div *ngIf="enrolledCourses.length > 0" class="enrolled-courses">
+        <div class="enrolled-courses-container">
+          <ul class="enrolled-courses">
+            <li *ngFor="let course of enrolledCourses">
+              <div class="course-title"><strong>{{ course.title }}</strong></div>
+              <div class="course-domain">Domain: {{ course.description }}</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button class="btn btn-primary" (click)="navigateToCourses()">
+          Browse More Courses
+        </button>
+      </div>
+
+      <div *ngIf="enrolledCourses.length === 0" class="no-courses">
+        <img src="alert.png" alt="Alert" />
+        <p>
+          You are not enrolled in any courses yet. Browse available courses and
+          start learning today!
+        </p>
+      </div>
+    </div>
+  </ng-container>
+</div>

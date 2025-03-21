@@ -8,7 +8,9 @@
     --secondary-bg: #373c4f;
     --text-color: #f0ffff;
     --secondary-text-color: #495057;
-    --button-bg: #b48add;
+    --button-bg: #b38add;
+    --button1-bg: #6906cd;
+    --button1-hover-bg: #530893;
     --button-hover-bg: #a676d1;
     --input-bg: #fff;
     --input-text: #373c4f;
@@ -36,6 +38,18 @@
     padding: var(--padding-md);
     border-radius: var(--border-radius);
     border: 1px solid #f5c6cb;
+    text-align: center;
+    margin-bottom: var(--padding-md);
+    font-weight: bold;
+}
+
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: var(--padding-md);
+    border-radius: var(--border-radius);
+    border: 1px solid #c3e6cb;
     text-align: center;
     margin-bottom: var(--padding-md);
     font-weight: bold;

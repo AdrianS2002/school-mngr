@@ -22,3 +22,24 @@ export const selectSuccessMessage = createSelector(
   selectAuthState,
   (state) => state.successMessage
 );
+
+
+export const selectIsAuthenticated = createSelector(
+  selectUser,
+  (user) => !!user
+);
+
+export const selectIsProfessor = createSelector(
+  selectUser,
+  (user) => user?.hasRole('PROFESOR') || false
+);
+
+export const selectIsStudent = createSelector(
+  selectUser,
+  (user) => user?.hasRole('STUDENT') || false
+);
+
+export const selectIsAdmin = createSelector(
+  selectUser,
+  (user) => user?.hasRole('ADMIN') || false
+);

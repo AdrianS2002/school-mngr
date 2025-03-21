@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { User } from '../database/models/user.model';
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -13,33 +15,24 @@ import { AuthService } from '../auth/auth.service';
 export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   private authSubscription!: Subscription;
+
   constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
-
-    // this.authSubscription = this.authService.authStatus$.subscribe(status => {
-    //   this.isLoggedIn = status;
-    // });
+    this.authSubscription = this.authService.user.subscribe((user: User | null) => {
+      this.isLoggedIn = !!user;   
+      console.log('Header login state changed: ', this.isLoggedIn, user);
+    });
   }
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/auth']); // Redirecționează către login
-  }
-
-  // Verifică dacă utilizatorul este logat
-  checkLoginStatus() {
-    
+    this.router.navigate(['/auth']);
   }
 
   navigateToLogin() {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth']);
   }
-
-  navigateToSignup() {
-    this.router.navigate(['/signup']);
-  }
-
 
   navigateToHome() {
     this.router.navigate(['/home']);
@@ -54,6 +47,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.authSubscription.unsubscribe(); // Evită memory leaks
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 }
