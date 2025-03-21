@@ -10,6 +10,8 @@ import { AuthEffects } from './app/auth/store/auth.effects';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
+import { CoursesEffects } from './app/courses/store/courses.effects';
+import { coursesReducer } from './app/courses/store/courses.reducer';
 
 const firebaseConfig = {
 
@@ -36,8 +38,8 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
-    provideStore({ auth: authReducer }),
-    provideEffects([AuthEffects]),
+    provideStore({ auth: authReducer, courses: coursesReducer }),
+    provideEffects([AuthEffects,CoursesEffects]),
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideFirestore(() => getFirestore()),
     provideAuth(() => getAuth()),

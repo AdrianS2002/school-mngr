@@ -1,0 +1,212 @@
+.courses {
+    max-width: 100vh;
+    margin: 20px auto;
+    margin-top: 5rem;
+    padding: 10px;
+    text-align: center;
+}
+h2{
+    color: var(--button1-bg);
+}
+
+.courseBox{
+    margin-top: 15px;
+    max-width: 100vh;
+    height: 70vh; 
+    overflow-y: auto; 
+    background-color: rgba(165, 107, 231, 0.267);
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.disabled-course {
+    opacity: 0.6;
+    pointer-events: none; 
+    background-color: #ccc;
+    cursor: not-allowed;
+    pointer-events: not-allowed; 
+}
+
+
+.enroll:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
+.enroll:disabled:hover {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
+
+.course-card {
+    background-color: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: 3fr 3fr 1fr; 
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+}
+.course-card:hover {
+    backdrop-filter: blur(10px);
+
+}
+.enroll{
+    background-color: green;
+    color: white;
+}
+.enroll:hover{
+    background-color: rgb(1, 74, 1);
+    cursor: pointer;
+}
+
+.unenroll{
+    background-color: red;
+    color: white;
+    cursor: pointer;
+}
+.unenroll:hover{
+    background-color: rgb(74, 1, 1);
+    cursor: pointer;
+}
+
+
+
+.course-header {
+    grid-column: span 3; 
+    color: white;
+    font-weight: bold;
+    text-align: left;
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--button1-hover-bg);
+}
+
+.grid-special {
+    display: flex;  
+    flex-direction: column;  
+    align-items: center; 
+    gap: 20px;
+    padding: 20px;
+    width: 100%;
+}
+
+.special-card {
+    background-color: var(--secondary-bg);
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 15px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+}
+.special-card:hover {
+    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.3);
+}
+
+.filter-container {
+    position: sticky;
+    top: 0;
+    background: transparent;
+    text-align: center;
+    padding: 10px;
+    z-index: 10;
+}
+
+
+.no-courses {
+    text-align: center;
+    height: 60vh;
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+
+.special-card h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.special-card p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.course-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 150px;
+    font-size: 14px;
+    color: white;
+    justify-content: start;
+}
+
+
+.course-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-self: end; 
+    align-items: flex-end;
+}
+
+.course-actions button {
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    width: 100px;
+    text-align: center;
+}
+
+.btn-danger {
+    background-color: var(--secondary-bg);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+
+.btn-primary {
+    background-color: var(--secondary-bg);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+
+
+.btn-secondary {
+    background-color: var(--secondary-bg);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.add-course-btn{
+    color: white;
+    margin-top: 15px;
+    background-color: green;
+}
+
+.add-course-btn:hover{
+    background-color: rgb(1, 74, 1);
+}

@@ -19,17 +19,14 @@ export class AuthEffects {
       ofType(AuthActions.loginStart),
       mergeMap((action) =>
         this.authService.login(action.email, action.password).pipe(
-          map((authRes) => {
-            const expirationDate = new Date(new Date().getTime() + +authRes.expiresIn * 1000);
-            const user = new User(authRes.email, authRes.localId, authRes.idToken, expirationDate, []);
-            return AuthActions.loginSuccess({ user });
-          }),
+          tap(user => console.log('Login user received with roles:', user)), // verificare
+          map((user) => AuthActions.loginSuccess({ user })),
           catchError((error) => of(AuthActions.loginFail({ error: error.message })))
         )
       )
     )
   );
-
+  
   loginRedirect$ = createEffect(
     () =>
       this.actions$.pipe(

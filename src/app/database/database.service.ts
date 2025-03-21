@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable} from "@angular/core";
 import { Firestore, addDoc, collection, collectionData, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "@angular/fire/firestore";
 import { Observable, from, map, tap, throwError } from "rxjs";
 import { User } from "./models/user.model";
@@ -97,6 +97,11 @@ export class DatabaseService {
     })).pipe(
       map(docRef => docRef.id)
     );
+  }
+
+  updateCourse(courseId: string, courseData: Partial<Course>): Observable<void> {
+    const courseRef = doc(this.firestore, `courses/${courseId}`);
+    return from(updateDoc(courseRef, courseData));
   }
 
   deleteCourse(courseId: string): Observable<void> {
