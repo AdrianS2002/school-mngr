@@ -5,6 +5,8 @@ import { ContactComponent } from './contact/contact.component';
 import { CoursesComponent } from './courses/courses.component';
 import { HomeComponent } from './home/home.component';
 import { AddEditCourseComponent } from './courses/add-edit-courses/add-edit-courses.component';
+import { ManageUsersComponent } from './manage-users/manage-users.component';
+import { AuthGuard } from './auth.guard';
 
 
 export const routes: Routes = [
@@ -16,4 +18,5 @@ export const routes: Routes = [
     { path: 'home', component: HomeComponent },
     { path: 'add-course', component:  AddEditCourseComponent},
     { path: 'edit-course/:id', component: AddEditCourseComponent },
+    { path: 'manage-users', component: ManageUsersComponent, canActivate: [AuthGuard] }
 ];
