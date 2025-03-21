@@ -91,7 +91,7 @@ export class AuthService {
     }));
   }
 
-  login(email: string, password: string): Observable<AuthResponseData> {
+  login(email: string, password: string): Observable<User> {
     return this.http.post<AuthResponseData>(this.loginUrl, {
       email,
       password,
@@ -105,18 +105,38 @@ export class AuthService {
                 error: { error: { message: 'EMAIL_NOT_VERIFIED' } }
               }));
             }
-            return from(this.databaseService.getUserProfile(resData.localId)).pipe(
-              map(() => resData)
+            //  Preia profilul utilizatorului din Firestore
+            return this.databaseService.getUserProfile(resData.localId).pipe(
+              map((profileData) => {
+                if (!profileData) {
+                  throw new Error('User profile not found in Firestore.');
+                }
+                const roles = profileData.roles ?? ['STUDENT']; // fallback
+                const expirationDate = new Date(new Date().getTime() + +resData.expiresIn * 1000);
+                const user = new User(resData.email, resData.localId, resData.idToken, expirationDate, roles);
+  
+                // Salvează în BehaviorSubject și localStorage
+                this.user.next(user);
+                localStorage.setItem('userData', JSON.stringify({
+                  email: user.email,
+                  id: user.id,
+                  _token: user.token,
+                  _tokenExpirationDate: expirationDate.toISOString(),
+                  roles: user.roles
+                }));
+  
+                console.log('Login complete, user with roles:', user); //  Verifică în consolă
+  
+                return user;
+              })
             );
           })
         );
       }),
-      catchError(this.handleError),
-      tap(resData => {
-        this.handleAuthentification(resData.email, resData.localId, resData.idToken, +resData.expiresIn);
-      })
+      catchError(this.handleError)
     );
   }
+  
 
   updateUserPassword(newPassword: string): Observable<any> {
     return this.user.pipe(
