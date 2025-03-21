@@ -5,13 +5,7 @@
 
     <nav class="nav">
         <a (click)="navigateToHome()"class="nav-item">Home</a>
-        <div class="dropdown">
-            <button class="nav-item dropdown-btn">Courses ▼</button>
-            <div class="dropdown-content">
-                <a (click)="navigateToCourses()" class="dropdown-item">Courses</a>
-            </div>
-        </div>
-
+        <a (click)="navigateToCourses()" class="nav-item">Courses</a>
         <a (click)="navigateToContact()" class="nav-item">Contact</a>
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Search Courses">
@@ -25,9 +19,6 @@
                 <button class="btn-login" (click)="navigateToLogin()">Login</button>
             </div>
         </ng-template>
-
-        
-
     </nav>
 
    
