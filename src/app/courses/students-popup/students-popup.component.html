@@ -1,20 +1,22 @@
 <div class="popup-overlay">
     <div class="popup-content">
-      <h2>Manage Enrollments </h2>
-      <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
-      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-      <ul>
-        <li *ngFor="let student of students" class="student-item-grid">
-          <div class="student-info">
-            <span>{{ student.email }}</span>
-          </div>
-          <div class="student-actions">
-            <button (click)="enrollStudent(student.id)" class="enroll">Enroll</button>
-            <button (click)="unenrollStudent(student.id)" class="unenroll">Unenroll</button>
-          </div>
-        </li>
-      </ul>
-      <button (click)="closePopup()" class="btn-secondary close-btn">Close</button>
+        <h2>Manage Enrollments </h2>
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+        <ul>
+            <li *ngFor="let student of students" class="student-item-grid">
+                <div class="student-info">
+                    <span>{{ student.email }}</span>
+                </div>
+                <div class="student-actions">
+                    <button (click)="enrollStudent(student.id)" class="enroll"
+                    [disabled]="enrolledStudent.includes(student.id)">
+                        Enroll
+                    </button>
+                    <button (click)="unenrollStudent(student.id)" class="unenroll">Unenroll</button>
+                </div>
+            </li>
+        </ul>
+        <button (click)="closePopup()" class="btn-secondary close-btn">Close</button>
     </div>
-  </div>
-  
+</div>

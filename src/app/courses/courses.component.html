@@ -45,7 +45,10 @@
 
                     </div>
                     <div class="course-actions">
-                        <button *ngIf="isStudent$ | async" (click)="enroll(course.id)" class="enroll">Enroll</button>
+                        <button *ngIf="isStudent$ | async" (click)="enroll(course.id)" class="enroll"
+                            [disabled]="userEnrollments.includes(course.id)">
+                            Enroll
+                        </button>
                         <button *ngIf="isStudent$ | async" (click)="unenroll(course.id)"
                             class="unenroll">Unenroll</button>
                         <button *ngIf="isProfessor$ | async" (click)="editCourse(course.id)" class="btn btn-primary">

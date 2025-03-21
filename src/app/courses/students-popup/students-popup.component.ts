@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatabaseService } from '../../database/database.service';
 import { User } from '../../database/models/user.model';
-import { Observable } from 'rxjs';
+import { Observable, pipe, take } from 'rxjs';
 import { NgFor } from '@angular/common';
 
 @Component({
@@ -18,14 +18,26 @@ export class StudentsPopupComponent implements OnInit {
   successMessage: string | null = null;
   errorMessage: string | null = null;
   students: User[] = [];
+  enrolledStudent: string[] = [];
 
   constructor(private dbService: DatabaseService) {}
 
   ngOnInit() {
-    this.dbService.getAllUsers().subscribe(users => {
-      this.students = users.filter(u => u.roles.includes('STUDENT'));
-    });
+    // Încarcă toți studenții
+    this.dbService.getAllUsers()
+      .pipe(take(1))
+      .subscribe(users => {
+        this.students = users.filter(u => u.roles.includes('STUDENT'));
+      });
+  
+    // Încarcă enrollments pentru acest curs
+    this.dbService.getEnrollmentsForCourse(this.courseId)
+      .pipe(take(1))
+      .subscribe(enrollments => {
+        this.enrolledStudent = enrollments.map(e => e.studentId);
+      });
   }
+  
 
   enrollStudent(studentId: string) {
     this.dbService.enrollStudent(this.courseId, studentId).subscribe({
@@ -52,6 +64,7 @@ export class StudentsPopupComponent implements OnInit {
       }
     });
   }
+
 
   clearMessagesAfterDelay() {
     setTimeout(() => {

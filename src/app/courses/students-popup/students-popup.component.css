@@ -49,6 +49,16 @@ ul {
     gap: 0.5rem;
 }
 
+.enroll:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
+.enroll:disabled:hover {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
 .close-btn {
     width: 80%;
     background-color: rgb(120, 11, 11);

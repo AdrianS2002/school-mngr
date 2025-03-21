@@ -26,14 +26,17 @@ export class CoursesComponent implements OnInit {
   errorMessage: string | null = null;
   showFilter = false;
   currentUserId: string | null = null;
+  userEnrollments: string[] = [];
   constructor(private store: Store, private router: Router, private dbService: DatabaseService) { }
 
   ngOnInit(): void {
-    // Încarcă cursurile la inițializare
     this.store.dispatch(CourseActions.loadCourses());
     this.store.select(selectUser).subscribe(user => {
       if (user) {
         this.currentUserId = user.id;
+        this.dbService.getEnrollmentsForStudent(user.id).subscribe(enrollments => {
+          this.userEnrollments = enrollments.map(e => e.courseId);
+        });
       }
     });
 
