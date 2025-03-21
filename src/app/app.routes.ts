@@ -13,7 +13,7 @@ export const routes: Routes = [
     { path: '', redirectTo: '/auth', pathMatch: 'full' },
     { path: 'contact', component: ContactComponent },
     { path: 'courses', component: CoursesComponent },
-    { path: 'home', component: HomeComponent }
+    { path: 'home', component: HomeComponent },
     { path: 'add-course', component:  AddEditCourseComponent},
     { path: 'edit-course/:id', component: AddEditCourseComponent },
 ];
