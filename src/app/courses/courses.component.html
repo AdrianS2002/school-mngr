@@ -1,66 +1,73 @@
 <div class="courses">
     <h2>Courses</h2>
-  
+    <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
     <ng-container *ngIf="successMessage$ | async as successMessage">
-      <div class="success-message">{{ successMessage }}</div>
+        <div class="success-message">{{ successMessage }}</div>
     </ng-container>
-  
-    <ng-container *ngIf="errorMessage$ | async as errorMessage">
-      <div class="error-message">{{ errorMessage }}</div>
+
+    <ng-container *ngIf="errorMessage$| async as errorMessage">
+        <div class="error-message">{{ errorMessage }}</div>
     </ng-container>
-  
+
     <ng-container *ngIf="(isAuthenticated$ | async) === false">
-      <div class="courseBox grid-special">
-        <div *ngFor="let course of courses$ | async" class="course-card special-card" (click)="goToLogin()">
-          <div class="course-header">
-            <h3>{{ course.title }}</h3>
-            <p>{{ course.description }}</p>
-          </div>
-          <div class="course-info">
-            <div>
-              <p><strong>Description:</strong> {{ course.description }}</p>
+        <div class="courseBox grid-special">
+            <div *ngFor="let course of courses$ | async" class="course-card special-card" (click)="goToLogin()">
+                <div class="course-header">
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description }}</p>
+                </div>
+                <div class="course-info">
+                    <div>
+                        <p><strong>Description:</strong> {{ course.description }}</p>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </ng-container>
-  
+
     <ng-container *ngIf="isAuthenticated$ | async">
-      <div class="courseBox">
-        <ng-container *ngIf="(courses$ | async) as courses">
-          <div *ngIf="courses.length === 0" class="no-courses">
-            <p>No courses found.</p>
-          </div>
-  
-          <div *ngFor="let course of courses" class="course-card">
-            <div class="course-header">
-              <h3>{{ course.title }}</h3>
-              <p>{{ course.description }}</p>
-            </div>
-            <div class="course-info">
-              <div>
-                <p><strong>Description:</strong> {{ course.description }}</p>
-              </div>
-              
-            </div>
-            <div class="course-actions">
-              <button *ngIf="isStudent$ | async" (click)="enroll(course.id)" class="enroll">Enroll</button>
-              <button *ngIf="isStudent$ | async" (click)="unenroll(course.id)" class="unenroll">Unenroll</button>
-              <button *ngIf="isProfessor$ | async" (click)="editCourse(course.id)" class="btn btn-primary">
-                <img src="edit.png" alt="Edit" />
-              </button>
-              <button *ngIf="isProfessor$ | async" (click)="deleteCourse(course.id)" class="btn btn-danger">
-                <img src="delete.png" alt="Delete" />
-              </button>
-              <button *ngIf="isProfessor$ | async" (click)="addStudents(course.id)" class="btn btn-secondary">
-                <img src="user.png" alt="View" />
-              </button>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-  
-      <button *ngIf="isProfessor$ | async" (click)="addCourse()" class="add-course-btn">ADD NEW COURSE</button>
+        <div class="courseBox">
+            <ng-container *ngIf="(courses$ | async) as courses">
+                <div *ngIf="courses.length === 0" class="no-courses">
+                    <p>No courses found.</p>
+                </div>
+
+                <div *ngFor="let course of courses" class="course-card">
+                    <div class="course-header">
+                        <h3>{{ course.title }}</h3>
+                        <p>{{ course.description }}</p>
+                    </div>
+                    <div class="course-info">
+                        <div>
+                            <p><strong>Description:</strong> {{ course.description }}</p>
+                        </div>
+
+                    </div>
+                    <div class="course-actions">
+                        <button *ngIf="isStudent$ | async" (click)="enroll(course.id)" class="enroll"
+                            [disabled]="userEnrollments.includes(course.id)">
+                            Enroll
+                        </button>
+                        <button *ngIf="isStudent$ | async" (click)="unenroll(course.id)"
+                            class="unenroll">Unenroll</button>
+                        <button *ngIf="isProfessor$ | async" (click)="editCourse(course.id)" class="btn btn-primary">
+                            <img src="edit.png" alt="Edit" />
+                        </button>
+                        <button *ngIf="isProfessor$ | async" (click)="deleteCourse(course.id)" class="btn btn-danger">
+                            <img src="delete.png" alt="Delete" />
+                        </button>
+                        <button *ngIf="isProfessor$ | async" (click)="addStudents(course.id)" class="btn btn-secondary">
+                            <img src="user.png" alt="View" />
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+
+        <button *ngIf="isProfessor$ | async" (click)="addCourse()" class="add-course-btn">ADD NEW COURSE</button>
     </ng-container>
-  </div>
-  
+
+    <app-students-popup *ngIf="showStudentsPopup" [courseId]="selectedCourseId!" (close)="closeStudentsPopup()">
+    </app-students-popup>
+</div>

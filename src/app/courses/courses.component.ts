@@ -1,14 +1,16 @@
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { selectIsAuthenticated, selectIsProfessor, selectIsStudent, selectSuccessMessage } from '../auth/store/auth.selectors';
+import { selectIsAuthenticated, selectIsProfessor, selectIsStudent, selectSuccessMessage, selectUser } from '../auth/store/auth.selectors';
 import { selectAllCourses, selectCoursesError } from './store/courses.selectors';
 import * as CourseActions from './store/courses.actions';
+import { StudentsPopupComponent } from "./students-popup/students-popup.component";
+import { DatabaseService } from '../database/database.service';
 
 @Component({
   selector: 'app-courses',
-  imports: [NgFor, NgIf, CommonModule],
+  imports: [NgFor, NgIf, CommonModule, StudentsPopupComponent],
   standalone: true,
   templateUrl: './courses.component.html',
   styleUrl: './courses.component.css'
@@ -20,13 +22,24 @@ export class CoursesComponent implements OnInit {
   isProfessor$ = this.store.select(selectIsProfessor);
   successMessage$ = this.store.select(selectSuccessMessage);
   errorMessage$ = this.store.select(selectCoursesError);
-
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
   showFilter = false;
-
-  constructor(private store: Store, private router: Router) {}
+  currentUserId: string | null = null;
+  userEnrollments: string[] = [];
+  constructor(private store: Store, private router: Router, private dbService: DatabaseService) { }
 
   ngOnInit(): void {
-    // Încarcă cursurile la inițializare
+    this.store.dispatch(CourseActions.loadCourses());
+    this.store.select(selectUser).subscribe(user => {
+      if (user) {
+        this.currentUserId = user.id;
+        this.dbService.getEnrollmentsForStudent(user.id).subscribe(enrollments => {
+          this.userEnrollments = enrollments.map(e => e.courseId);
+        });
+      }
+    });
+
     this.store.dispatch(CourseActions.loadCourses());
   }
 
@@ -39,15 +52,38 @@ export class CoursesComponent implements OnInit {
   }
 
 
-
   enroll(courseId: string) {
-    // aici poți adăuga un dispatch de acțiune de enroll sau redirect către o pagină de detalii
-    console.log(`Enroll in course with id: ${courseId}`);
+    if (!this.currentUserId) return;
+    this.dbService.enrollStudent(courseId, this.currentUserId).subscribe({
+      next: () => {
+        this.successMessage = 'Student enrolled successfully!';
+        this.clearMessagesAfterDelay();
+      },
+      error: () => {
+        this.errorMessage = 'Error enrolling student.';
+        this.clearMessagesAfterDelay();
+      }
+    });
   }
 
   unenroll(courseId: string) {
-    // aici poți adăuga un dispatch de acțiune de unenroll
-    console.log(`Unenroll from course with id: ${courseId}`);
+    if (!this.currentUserId) return;
+    this.dbService.leaveCourse(courseId, this.currentUserId).subscribe({
+      next: () => {
+        this.successMessage = 'Student unenrolled successfully!';
+        this.clearMessagesAfterDelay();
+      },
+      error: () => {
+        this.errorMessage = 'Error unenrolling student.';
+        this.clearMessagesAfterDelay();
+      }
+    });
+  }
+  clearMessagesAfterDelay() {
+    setTimeout(() => {
+      this.successMessage = null;
+      this.errorMessage = null;
+    }, 3000);
   }
 
   editCourse(courseId: string) {
@@ -61,6 +97,16 @@ export class CoursesComponent implements OnInit {
   addCourse() {
     this.router.navigate(['/add-course']);
   }
+  showStudentsPopup = false;
+  selectedCourseId: string | null = null;
+
   addStudents(courseId: string) {
+    this.selectedCourseId = courseId;
+    this.showStudentsPopup = true;
   }
+
+  closeStudentsPopup() {
+    this.showStudentsPopup = false;
+  }
+
 }
