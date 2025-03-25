@@ -3,7 +3,8 @@ export class Enrollment {
         public id: string,
         public courseId: string,
         public studentId: string,
-        public enrolledAt: Date
+        public enrolledAt: Date,
+        public grade?: number
     ) {}
 
     isForCourse(courseId: string): boolean {

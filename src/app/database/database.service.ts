@@ -1,6 +1,6 @@
 import { Injectable} from "@angular/core";
 import { Firestore, addDoc, collection, collectionData, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "@angular/fire/firestore";
-import { Observable, from, map, tap, throwError } from "rxjs";
+import { Observable, from, map, mergeMap, tap, throwError } from "rxjs";
 import { User } from "./models/user.model";
 import { Course } from "./models/course.model";
 import { Enrollment } from "./models/enrollment.model";
@@ -173,4 +173,41 @@ export class DatabaseService {
     const q = query(enrollmentsRef, where('studentId', '==', studentId));
     return collectionData(q, { idField: 'id' }) as Observable<Enrollment[]>;
   }
+
+  updateGrade(courseId: string, studentId: string, grade: number): Observable<void> {
+    const enrollmentsRef = collection(this.firestore, 'enrollments');
+    const q = query(enrollmentsRef, where('courseId', '==', courseId), where('studentId', '==', studentId));
+    return from(getDocs(q)).pipe(
+      mergeMap(snapshot => {
+        const batchUpdates = snapshot.docs.map(docSnap =>
+          updateDoc(docSnap.ref, { grade })
+        );
+        return from(Promise.all(batchUpdates)).pipe(map(() => void 0));
+      })
+    );
+  }
+  
+  getAllEnrollments(): Observable<Enrollment[]> {
+    const enrollmentsRef = collection(this.firestore, 'enrollments');
+    return collectionData(enrollmentsRef, { idField: 'id' }).pipe(
+      map(enrollments => enrollments.map(e => new Enrollment(
+        e['id'],
+        e['courseId'],
+        e['studentId'],
+        e['enrolledAt'].toDate(),
+        e['grade']
+      )))
+    );
+  }
+  
+  unenrollById(enrollmentId: string): Observable<void> {
+    const enrollmentRef = doc(this.firestore, `enrollments/${enrollmentId}`);
+    return from(deleteDoc(enrollmentRef));
+  }
+  
+  assignGrade(enrollmentId: string, grade: number): Observable<void> {
+    const enrollmentRef = doc(this.firestore, `enrollments/${enrollmentId}`);
+    return from(updateDoc(enrollmentRef, { grade }));
+  }
+  
 }
