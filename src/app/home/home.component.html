@@ -55,9 +55,15 @@
       <div *ngIf="enrolledCourses.length > 0" class="enrolled-courses">
         <div class="enrolled-courses-container">
           <ul class="enrolled-courses">
-            <li *ngFor="let course of enrolledCourses">
-              <div class="course-title"><strong>{{ course.title }}</strong></div>
-              <div class="course-domain">Domain: {{ course.description }}</div>
+            <li *ngFor="let enrolled of enrolledCourses">
+              <div class="course-title"><strong>{{ enrolled.course.title }}</strong></div>
+              <div class="course-domain">Domain: {{ enrolled.course.description }}</div>
+              <div class="course-grade" [ngClass]="{
+                'grade-low': enrolled.grade !== undefined && enrolled.grade < 5,
+                'grade-high': enrolled.grade !== undefined && enrolled.grade >= 5
+              }">
+                Grade: {{ enrolled.grade !== undefined ? enrolled.grade : 'Not assigned' }}
+              </div>
             </li>
           </ul>
         </div>

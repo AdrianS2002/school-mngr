@@ -132,7 +132,7 @@ export class DatabaseService {
   // ENROLLMENTS MANAGEMENT
 
 
-  enrollStudent(courseId: string, studentId: string): Observable<void> {
+  enrollStudent(courseId: string, studentId: string): Observable<string> {
     const enrollmentsRef = collection(this.firestore, 'enrollments');
     return from(addDoc(enrollmentsRef, {
       courseId,
@@ -140,7 +140,7 @@ export class DatabaseService {
       enrolledAt: new Date()
     })).pipe(
       tap((ref) => console.log(`Student ${studentId} enrolled in course ${courseId}, enrollmentId: ${ref.id}`)),
-      map(() => void 0) // convertim rezultatul într-un void
+      map((ref) => ref.id) // returnezi ID-ul generat de Firebase
     );
   }
 
@@ -163,7 +163,8 @@ export class DatabaseService {
         e['id'],
         e['courseId'],
         e['studentId'],
-        e['enrolledAt'].toDate()
+        e['enrolledAt'].toDate(),
+        e['grade']
       )))
     );
   }

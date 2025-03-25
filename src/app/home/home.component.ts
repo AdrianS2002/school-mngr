@@ -17,14 +17,12 @@ import { DatabaseService } from '../database/database.service';
 })
 export class HomeComponent implements OnInit  {
   user$!: Observable<User | null>;
-
-
-
+  
   isAuthenticated$!: Observable<boolean>;
   isProfessor$!: Observable<boolean>;
   isAdmin$!: Observable<boolean>;
   isStudent$!: Observable<boolean>;
-  enrolledCourses: Course[] = [];
+  enrolledCourses: { course: Course, grade?: number }[] = [];
 
   constructor(
     private router: Router,
@@ -38,18 +36,24 @@ export class HomeComponent implements OnInit  {
     this.isStudent$ = this.store.select(selectIsStudent);
     this.isAdmin$ = this.store.select(selectIsAdmin);
     this.user$ = this.store.select(selectUser);
-    // Preiau userul și încarc cursurile
+  
     this.store.select(selectUser).subscribe(user => {
       if (user) {
         this.dbService.getEnrollmentsForStudent(user.id).subscribe(enrollments => {
           const courseIds = enrollments.map(e => e.courseId);
           this.dbService.getAllCourses().subscribe(courses => {
-            this.enrolledCourses = courses.filter(c => courseIds.includes(c.id));
+            this.enrolledCourses = courses
+              .filter(c => courseIds.includes(c.id))
+              .map(course => {
+                const enrollment = enrollments.find(e => e.courseId === course.id);
+                return { course, grade: enrollment?.grade };
+              });
           });
         });
       }
     });
   }
+  
 
   navigateToLogin() {
     this.router.navigate(['/auth']);

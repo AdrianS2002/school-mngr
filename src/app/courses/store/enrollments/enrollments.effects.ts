@@ -26,16 +26,16 @@ export class EnrollmentsEffects {
       ofType(EnrollmentActions.enrollStudent),
       mergeMap(({ courseId, studentId }) =>
         this.dbService.enrollStudent(courseId, studentId).pipe(
-            map(() =>
-                EnrollmentActions.enrollStudentSuccess({
-                  enrollment: new Enrollment(
-                    courseId + '_' + studentId, // sau ID-ul returnat de Firebase
-                    courseId,
-                    studentId,
-                    new Date()
-                  )
-                })
-              ),
+          map((enrollmentId) =>
+            EnrollmentActions.enrollStudentSuccess({
+              enrollment: new Enrollment(
+                enrollmentId, // Folosești ID-ul real al documentului
+                courseId,
+                studentId,
+                new Date()
+              )
+            })
+          ),
           catchError(error => of(EnrollmentActions.enrollStudentFail({ error: error.message })))
         )
       )

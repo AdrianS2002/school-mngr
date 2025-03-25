@@ -15,7 +15,7 @@
     background-color: var(--input-bg);
     padding: var(--padding-lg);
     border-radius: var(--border-radius);
-    width: 700px;
+    width: 900px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
@@ -95,14 +95,42 @@ ul {
 }
 .student-item-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 2fr 3fr;
     align-items: center;
     padding: var(--padding-md) 0;
     border-bottom: 1px solid var(--button1-bg);
+}
+
+.student-info {
+    font-weight: 500;
+    color: var(--secondary-text-color);
 }
 
 .student-actions {
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;
+}
+.student-grade {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.student-grade input[type="number"] {
+    width: 90px;
+   
+    font-size: 0.6rem;
+}
+
+.student-grade button {
+    background-color:  var(--button1-bg);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.student-grade button:hover {
+    background-color: var( --button1-hover-bg);
 }
