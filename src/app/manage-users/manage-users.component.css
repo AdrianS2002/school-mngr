@@ -1,0 +1,92 @@
+.admin-users-container {
+    padding: var(--padding-lg);
+    background-color: var(--input-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  h2{
+    color: var(--button1-bg);
+    text-align: center;
+  }
+  
+  .user-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .user-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr 2fr;
+    align-items: center;
+    padding: var(--padding-md);
+    border-bottom: 1px solid var(--border-color);
+    gap: 1rem;
+  }
+  
+  .user-email {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-roles {
+    color: var(--secondary-text-color);
+    margin-top: 0.3rem;
+  }
+  
+  .user-delete {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .user-change-role {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .delete-btn {
+    background-color: red;
+    color: white;
+    padding: 0.5rem 1rem;
+  }
+  
+  .delete-btn:hover {
+    background-color: darkred;
+  }
+  
+  .dropdown-toggle {
+    background-color: var(--button1-bg);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: var(--input-bg);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    flex-direction: column;
+    z-index: 100;
+  }
+  
+  .dropdown-menu button {
+    background: none;
+    border: none;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    text-align: left;
+  }
+  
+  .dropdown-menu button:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .dropdown:hover .dropdown-menu {
+    display: flex;
+  }
+  

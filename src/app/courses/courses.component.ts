@@ -4,9 +4,13 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { selectIsAuthenticated, selectIsProfessor, selectIsStudent, selectSuccessMessage, selectUser } from '../auth/store/auth.selectors';
 import { selectAllCourses, selectCoursesError } from './store/courses.selectors';
+import * as EnrollmentActions from './store/enrollments/enrollments.actions';
 import * as CourseActions from './store/courses.actions';
 import { StudentsPopupComponent } from "./students-popup/students-popup.component";
 import { DatabaseService } from '../database/database.service';
+import { Observable } from 'rxjs';
+import { Enrollment } from '../database/models/enrollment.model';
+import { selectEnrollmentErrorMessage, selectEnrollmentsForCurrentUser, selectEnrollmentSuccessMessage } from './store/enrollments/enrollments.selectors';
 
 @Component({
   selector: 'app-courses',
@@ -20,13 +24,14 @@ export class CoursesComponent implements OnInit {
   isAuthenticated$ = this.store.select(selectIsAuthenticated);
   isStudent$ = this.store.select(selectIsStudent);
   isProfessor$ = this.store.select(selectIsProfessor);
-  successMessage$ = this.store.select(selectSuccessMessage);
-  errorMessage$ = this.store.select(selectCoursesError);
+  successMessage$ = this.store.select(selectEnrollmentSuccessMessage);
+  errorMessage$ = this.store.select(selectEnrollmentErrorMessage);
+  userEnrollments$ = this.store.select(selectEnrollmentsForCurrentUser) as Observable<Enrollment[]>;
   successMessage: string | null = null;
   errorMessage: string | null = null;
   showFilter = false;
   currentUserId: string | null = null;
-  userEnrollments: string[] = [];
+
   constructor(private store: Store, private router: Router, private dbService: DatabaseService) { }
 
   ngOnInit(): void {
@@ -34,9 +39,7 @@ export class CoursesComponent implements OnInit {
     this.store.select(selectUser).subscribe(user => {
       if (user) {
         this.currentUserId = user.id;
-        this.dbService.getEnrollmentsForStudent(user.id).subscribe(enrollments => {
-          this.userEnrollments = enrollments.map(e => e.courseId);
-        });
+        this.store.dispatch(EnrollmentActions.loadEnrollmentsForStudent({ studentId: user.id }));
       }
     });
 
@@ -52,33 +55,27 @@ export class CoursesComponent implements OnInit {
   }
 
 
-  enroll(courseId: string) {
-    if (!this.currentUserId) return;
-    this.dbService.enrollStudent(courseId, this.currentUserId).subscribe({
-      next: () => {
-        this.successMessage = 'Student enrolled successfully!';
-        this.clearMessagesAfterDelay();
-      },
-      error: () => {
-        this.errorMessage = 'Error enrolling student.';
-        this.clearMessagesAfterDelay();
-      }
-    });
+  isUserEnrolled(courseId: string, enrollments: any[]): boolean {
+    return enrollments.some(e => e.courseId === courseId);
   }
 
-  unenroll(courseId: string) {
+
+  enroll(courseId: string) {
+    console.log("courseId");
     if (!this.currentUserId) return;
-    this.dbService.leaveCourse(courseId, this.currentUserId).subscribe({
-      next: () => {
-        this.successMessage = 'Student unenrolled successfully!';
-        this.clearMessagesAfterDelay();
-      },
-      error: () => {
-        this.errorMessage = 'Error unenrolling student.';
-        this.clearMessagesAfterDelay();
-      }
-    });
+    this.store.dispatch(
+      EnrollmentActions.enrollStudent({ courseId, studentId: this.currentUserId })
+    );
   }
+
+  unenroll(enrollmentId: string | null) {
+    if (!enrollmentId) return;
+    this.store.dispatch(
+      EnrollmentActions.unenrollStudent({ enrollmentId })
+    );
+  }
+
+
   clearMessagesAfterDelay() {
     setTimeout(() => {
       this.successMessage = null;
@@ -88,6 +85,11 @@ export class CoursesComponent implements OnInit {
 
   editCourse(courseId: string) {
     this.router.navigate(['/edit-course', courseId]);
+  }
+
+  getEnrollmentId(courseId: string, enrollments: Enrollment[]): string | null {
+    const enrollment = enrollments.find(e => e.courseId === courseId && e.studentId === this.currentUserId);
+    return enrollment ? enrollment.id : null;
   }
 
   deleteCourse(courseId: string) {

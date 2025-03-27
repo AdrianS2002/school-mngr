@@ -10,11 +10,18 @@
                 </div>
                 <div class="student-actions">
                     <button (click)="enrollStudent(student.id)" class="enroll"
-                    [disabled]="enrolledStudent.includes(student.id)">
+                        [disabled]="isStudentEnrolled(student.id)">
                         Enroll
                     </button>
                     <button (click)="unenrollStudent(student.id)" class="unenroll">Unenroll</button>
+                    <div class="student-grade">
+                        <input type="number" min="1" max="10" [(ngModel)]="grades[student.id]"
+                            [value]="grades[student.id]" placeholder="Grade" />
+                        <button class="asign" (click)="assignGradeToStudent(student.id)">Set grade</button>
+                    </div>
                 </div>
+
+
             </li>
         </ul>
         <button (click)="closePopup()" class="btn-secondary close-btn">Close</button>

@@ -4,12 +4,16 @@ import { AuthEffects } from './auth/store/auth.effects';
 import { HeaderComponent } from "./header/header.component";
 import { Course } from './database/models/course.model';
 import { CoursesEffects } from './courses/store/courses.effects';
+import { Enrollment } from './database/models/enrollment.model';
+import { EnrollmentsEffects } from './courses/store/enrollments/enrollments.effects';
+import { User } from './database/models/user.model';
+import { UsersEffects } from './manage-users/store/users.effects';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
-  providers: [AuthEffects, CoursesEffects],
+  providers: [AuthEffects, CoursesEffects, EnrollmentsEffects, UsersEffects],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

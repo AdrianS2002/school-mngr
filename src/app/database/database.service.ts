@@ -1,6 +1,6 @@
 import { Injectable} from "@angular/core";
 import { Firestore, addDoc, collection, collectionData, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "@angular/fire/firestore";
-import { Observable, from, map, tap, throwError } from "rxjs";
+import { Observable, from, map, mergeMap, tap, throwError } from "rxjs";
 import { User } from "./models/user.model";
 import { Course } from "./models/course.model";
 import { Enrollment } from "./models/enrollment.model";
@@ -44,10 +44,32 @@ export class DatabaseService {
     const userRef = doc(this.firestore, `users/${userId}`);
     return from(deleteDoc(userRef));
   }
+  deleteEnrollmentsForStudent(studentId: string): Observable<void> {
+    const enrollmentsRef = collection(this.firestore, 'enrollments');
+    const q = query(enrollmentsRef, where('studentId', '==', studentId));
+  
+    return from(getDocs(q)).pipe(
+      mergeMap(snapshot => {
+        const deletions = snapshot.docs.map(docSnap =>
+          deleteDoc(docSnap.ref)
+        );
+        return from(Promise.all(deletions)).pipe(map(() => void 0));
+      }),
+      tap(() => console.log(`Toate enrollments-urile pentru studentId ${studentId} au fost șterse.`))
+    );
+  }
 
   assignRoles(userId: string, roles: string[]): Observable<void> {
     const userRef = doc(this.firestore, `users/${userId}`);
-    return from(updateDoc(userRef, { roles }));
+    return from(updateDoc(userRef, { roles })).pipe(
+      tap(async () => {
+        // Dacă utilizatorul nu mai are rolul STUDENT, șterge enrollments
+        if (!roles.includes('STUDENT')) {
+          console.log(`User ${userId} nu mai este student. Se șterg enrollments.`);
+          await this.deleteEnrollmentsForStudent(userId).toPromise();
+        }
+      })
+    );
   }
 
   getAllUsers(): Observable<User[]> {
@@ -132,7 +154,7 @@ export class DatabaseService {
   // ENROLLMENTS MANAGEMENT
 
 
-  enrollStudent(courseId: string, studentId: string): Observable<void> {
+  enrollStudent(courseId: string, studentId: string): Observable<string> {
     const enrollmentsRef = collection(this.firestore, 'enrollments');
     return from(addDoc(enrollmentsRef, {
       courseId,
@@ -140,7 +162,7 @@ export class DatabaseService {
       enrolledAt: new Date()
     })).pipe(
       tap((ref) => console.log(`Student ${studentId} enrolled in course ${courseId}, enrollmentId: ${ref.id}`)),
-      map(() => void 0) // convertim rezultatul într-un void
+      map((ref) => ref.id) // returnezi ID-ul generat de Firebase
     );
   }
 
@@ -163,7 +185,8 @@ export class DatabaseService {
         e['id'],
         e['courseId'],
         e['studentId'],
-        e['enrolledAt'].toDate()
+        e['enrolledAt'].toDate(),
+        e['grade']
       )))
     );
   }
@@ -173,4 +196,41 @@ export class DatabaseService {
     const q = query(enrollmentsRef, where('studentId', '==', studentId));
     return collectionData(q, { idField: 'id' }) as Observable<Enrollment[]>;
   }
+
+  updateGrade(courseId: string, studentId: string, grade: number): Observable<void> {
+    const enrollmentsRef = collection(this.firestore, 'enrollments');
+    const q = query(enrollmentsRef, where('courseId', '==', courseId), where('studentId', '==', studentId));
+    return from(getDocs(q)).pipe(
+      mergeMap(snapshot => {
+        const batchUpdates = snapshot.docs.map(docSnap =>
+          updateDoc(docSnap.ref, { grade })
+        );
+        return from(Promise.all(batchUpdates)).pipe(map(() => void 0));
+      })
+    );
+  }
+  
+  getAllEnrollments(): Observable<Enrollment[]> {
+    const enrollmentsRef = collection(this.firestore, 'enrollments');
+    return collectionData(enrollmentsRef, { idField: 'id' }).pipe(
+      map(enrollments => enrollments.map(e => new Enrollment(
+        e['id'],
+        e['courseId'],
+        e['studentId'],
+        e['enrolledAt'].toDate(),
+        e['grade']
+      )))
+    );
+  }
+  
+  unenrollById(enrollmentId: string): Observable<void> {
+    const enrollmentRef = doc(this.firestore, `enrollments/${enrollmentId}`);
+    return from(deleteDoc(enrollmentRef));
+  }
+  
+  assignGrade(enrollmentId: string, grade: number): Observable<void> {
+    const enrollmentRef = doc(this.firestore, `enrollments/${enrollmentId}`);
+    return from(updateDoc(enrollmentRef, { grade }));
+  }
+  
 }

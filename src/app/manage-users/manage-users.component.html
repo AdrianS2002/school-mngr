@@ -1,1 +1,34 @@
-<p>manage-users works!</p>
+<div class="admin-users-container">
+    <h2>Manage Users</h2>
+  
+    <div *ngIf="successMessage$ | async as successMessage" class="success-message">
+      {{ successMessage }}
+    </div>
+  
+    <div *ngIf="errorMessage$ | async as errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+  
+    <ul class="user-list">
+      <li *ngFor="let user of (users$ | async)" class="user-row">
+        <div class="user-email">
+          <strong>{{ user.email }}</strong>
+          <div class="user-roles">Roles: {{ user.roles.join(', ') }}</div>
+        </div>
+        <div class="user-delete">
+          <button (click)="deleteUser(user.id)" class="delete-btn">Delete</button>
+        </div>
+        <div class="user-change-role">
+          <div class="dropdown">
+            <button class="dropdown-toggle">Change Role ▼</button>
+            <div class="dropdown-menu">
+              <button (click)="changeRole(user.id, 'ADMIN')">Make Admin</button>
+              <button (click)="changeRole(user.id, 'PROFESOR')">Make Professor</button>
+              <button (click)="changeRole(user.id, 'STUDENT')">Make Student</button>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  
