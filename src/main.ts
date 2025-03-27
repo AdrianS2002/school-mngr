@@ -14,6 +14,8 @@ import { CoursesEffects } from './app/courses/store/courses.effects';
 import { coursesReducer } from './app/courses/store/courses.reducer';
 import { EnrollmentsEffects } from './app/courses/store/enrollments/enrollments.effects';
 import { enrollmentsReducer } from './app/courses/store/enrollments/enrollments.reducer';
+import { usersReducer } from './app/manage-users/store/users.reducer';
+import { UsersEffects } from './app/manage-users/store/users.effects';
 
 const firebaseConfig = {
 
@@ -40,8 +42,8 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
-    provideStore({ auth: authReducer, courses: coursesReducer, enrollments: enrollmentsReducer }),
-    provideEffects([AuthEffects,CoursesEffects, EnrollmentsEffects]),
+    provideStore({ auth: authReducer, courses: coursesReducer, enrollments: enrollmentsReducer, users: usersReducer }),
+    provideEffects([AuthEffects,CoursesEffects, EnrollmentsEffects, UsersEffects]),
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideFirestore(() => getFirestore()),
     provideAuth(() => getAuth()),

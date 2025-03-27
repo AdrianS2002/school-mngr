@@ -44,10 +44,32 @@ export class DatabaseService {
     const userRef = doc(this.firestore, `users/${userId}`);
     return from(deleteDoc(userRef));
   }
+  deleteEnrollmentsForStudent(studentId: string): Observable<void> {
+    const enrollmentsRef = collection(this.firestore, 'enrollments');
+    const q = query(enrollmentsRef, where('studentId', '==', studentId));
+  
+    return from(getDocs(q)).pipe(
+      mergeMap(snapshot => {
+        const deletions = snapshot.docs.map(docSnap =>
+          deleteDoc(docSnap.ref)
+        );
+        return from(Promise.all(deletions)).pipe(map(() => void 0));
+      }),
+      tap(() => console.log(`Toate enrollments-urile pentru studentId ${studentId} au fost șterse.`))
+    );
+  }
 
   assignRoles(userId: string, roles: string[]): Observable<void> {
     const userRef = doc(this.firestore, `users/${userId}`);
-    return from(updateDoc(userRef, { roles }));
+    return from(updateDoc(userRef, { roles })).pipe(
+      tap(async () => {
+        // Dacă utilizatorul nu mai are rolul STUDENT, șterge enrollments
+        if (!roles.includes('STUDENT')) {
+          console.log(`User ${userId} nu mai este student. Se șterg enrollments.`);
+          await this.deleteEnrollmentsForStudent(userId).toPromise();
+        }
+      })
+    );
   }
 
   getAllUsers(): Observable<User[]> {
