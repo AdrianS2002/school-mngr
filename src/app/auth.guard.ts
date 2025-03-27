@@ -14,10 +14,17 @@ export class AuthGuard implements CanActivate {
   ): Observable<boolean | UrlTree> {
     return this.authService.user.pipe(
       take(1),
-      map(user => !!user),
-      tap(isAuth => {
-        if (!isAuth) {
-          this.router.navigate(['/auth']);
+      map(user => {
+        // Verifică dacă utilizatorul este autentificat și are rolul 'ADMIN'
+        if (user && user.roles.includes('ADMIN')) {
+          return true; // Permite accesul
+        } else {
+          return this.router.createUrlTree(['/auth']); // Redirecționează spre autentificare
+        }
+      }),
+      tap(isAdmin => {
+        if (isAdmin === true) {
+          return;
         }
       })
     );
