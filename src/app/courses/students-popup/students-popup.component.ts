@@ -7,6 +7,7 @@ import { NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as EnrollmentActions from '../store/enrollments/enrollments.actions';
 import { Store } from '@ngrx/store';
+import { LogService } from '../../log.service';
 
 @Component({
   selector: 'app-students-popup',
@@ -24,7 +25,7 @@ export class StudentsPopupComponent  {
   grades: { [studentId: string]: number } = {};
   enrolledStudent: { enrollmentId: string; studentId: string; grade?: number }[] = [];
 
-  constructor(private dbService: DatabaseService, private store: Store) {}
+  constructor(private dbService: DatabaseService, private store: Store, private logService: LogService) {}
 
   ngOnInit() {
     if (this.courseId) {
@@ -61,7 +62,23 @@ export class StudentsPopupComponent  {
 
   enrollStudent(studentId: string) {
     this.dbService.enrollStudent(this.courseId, studentId).subscribe({
-      next: () => {
+      next: (enrollmentId) => {
+        // Obține emailul și titlul cursului
+        this.dbService.getUserById(studentId).subscribe((user) => {
+          const email = user?.email || studentId;
+  
+          this.dbService.getCourseById(this.courseId).subscribe((course) => {
+            const courseTitle = course?.title || this.courseId;
+  
+            this.logService.log(
+              `Student ${email} enrolled in course "${courseTitle}"`,
+              email,
+              'ENROLL',
+              { enrollmentId, courseId: this.courseId, courseTitle }
+            );
+          });
+        });
+  
         this.successMessage = 'Student enrolled successfully!';
         this.clearMessagesAfterDelay();
       },
@@ -71,7 +88,7 @@ export class StudentsPopupComponent  {
       }
     });
   }
-
+  
   unenrollStudent(studentId: string) {
     const enrollment = this.enrolledStudent.find(e => e.studentId === studentId);
     if (!enrollment) {
@@ -82,9 +99,27 @@ export class StudentsPopupComponent  {
   
     this.dbService.unenrollById(enrollment.enrollmentId).subscribe({
       next: () => {
+        this.dbService.getUserById(studentId).subscribe((user) => {
+          const email = user?.email || studentId;
+  
+          this.dbService.getCourseById(this.courseId).subscribe((course) => {
+            const courseTitle = course?.title || this.courseId;
+  
+            this.logService.log(
+              `Student ${email} unenrolled from course "${courseTitle}"`,
+              email,
+              'UNENROLL',
+              {
+                enrollmentId: enrollment.enrollmentId,
+                courseId: this.courseId,
+                courseTitle
+              }
+            );
+          });
+        });
+  
         this.successMessage = 'Student unenrolled successfully!';
         this.clearMessagesAfterDelay();
-        // Optionally refresh the list
         this.loadStudents();
       },
       error: () => {
