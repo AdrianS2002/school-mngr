@@ -4,6 +4,7 @@ import { User } from "../database/models/user.model";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { DatabaseService } from "../database/database.service";
+import { LogService } from "../log.service";
 
 
 interface AuthResponseData {
@@ -30,6 +31,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private logService: LogService,
     private databaseService: DatabaseService
   ) {
     this.autoLogin();
@@ -71,6 +73,11 @@ export class AuthService {
   }
 
   logout() {
+    const userDataStr = localStorage.getItem('userData');
+    const userEmail = userDataStr ? JSON.parse(userDataStr).email : 'anon';
+
+    this.logService.log(`User ${userEmail} logged out`, userEmail, 'LOGOUT');
+
     this.user.next(null);
     console.log('Logging out...');
     localStorage.removeItem('userData');
@@ -79,15 +86,15 @@ export class AuthService {
 
   private handleAuthentification(email: string, userId: string, token: string, expiresIn: number) {
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
-    const user = new User(email, userId, token, expirationDate,['STUDENT']);
+    const user = new User(email, userId, token, expirationDate, ['STUDENT']);
     this.user.next(user);
     // Save a simple object with only the necessary data to local storage.
     localStorage.setItem('userData', JSON.stringify({
-        email: user.email,
-        id: user.id,
-        _token: user.token,
-        _tokenExpirationDate: expirationDate.toISOString(),
-        roles: user.roles
+      email: user.email,
+      id: user.id,
+      _token: user.token,
+      _tokenExpirationDate: expirationDate.toISOString(),
+      roles: user.roles
     }));
   }
 
@@ -114,7 +121,7 @@ export class AuthService {
                 const roles = profileData.roles ?? ['STUDENT']; // fallback
                 const expirationDate = new Date(new Date().getTime() + +resData.expiresIn * 1000);
                 const user = new User(resData.email, resData.localId, resData.idToken, expirationDate, roles);
-  
+
                 // Salvează în BehaviorSubject și localStorage
                 this.user.next(user);
                 localStorage.setItem('userData', JSON.stringify({
@@ -124,9 +131,9 @@ export class AuthService {
                   _tokenExpirationDate: expirationDate.toISOString(),
                   roles: user.roles
                 }));
-  
+
                 console.log('Login complete, user with roles:', user); //  Verifică în consolă
-  
+
                 return user;
               })
             );
@@ -136,7 +143,7 @@ export class AuthService {
       catchError(this.handleError)
     );
   }
-  
+
 
   updateUserPassword(newPassword: string): Observable<any> {
     return this.user.pipe(
@@ -165,7 +172,7 @@ export class AuthService {
     );
   }
 
-  
+
 
   checkEmailVerification(idToken: string): Observable<boolean> {
     return this.http.post<any>(this.getUserDataUrl, { idToken }).pipe(

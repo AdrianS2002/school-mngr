@@ -1,14 +1,15 @@
 import { Injectable} from "@angular/core";
 import { Firestore, addDoc, collection, collectionData, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "@angular/fire/firestore";
-import { Observable, from, map, mergeMap, tap, throwError } from "rxjs";
+import { Observable, catchError, from, map, mergeMap, tap, throwError } from "rxjs";
 import { User } from "./models/user.model";
 import { Course } from "./models/course.model";
 import { Enrollment } from "./models/enrollment.model";
+import { AuthManagementService } from "../manage-users/auth-management.service";
 
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, private authService: AuthManagementService) {}
 
   // USERS MANAGEMENT
 
@@ -41,9 +42,24 @@ export class DatabaseService {
   }
 
   deleteUser(userId: string): Observable<void> {
+    // Șterge utilizatorul din Firestore
     const userRef = doc(this.firestore, `users/${userId}`);
-    return from(deleteDoc(userRef));
+    return from(deleteDoc(userRef)).pipe(
+      tap(() => {
+        console.log(`User ${userId} deleted from Firestore`);
+        // Șterge utilizatorul și din Firebase Authentication
+        this.authService.deleteUserFromAuth(userId).subscribe({
+          next: () => console.log(`User ${userId} deleted from Firebase Authentication`),
+          error: (err) => console.error('Error deleting from Firebase Authentication', err)
+        });
+      }),
+      catchError((err) => {
+        console.error('Error deleting user from Firestore', err);
+        return throwError(() => new Error('Error deleting user.'));
+      })
+    );
   }
+  
   deleteEnrollmentsForStudent(studentId: string): Observable<void> {
     const enrollmentsRef = collection(this.firestore, 'enrollments');
     const q = query(enrollmentsRef, where('studentId', '==', studentId));
@@ -232,5 +248,21 @@ export class DatabaseService {
     const enrollmentRef = doc(this.firestore, `enrollments/${enrollmentId}`);
     return from(updateDoc(enrollmentRef, { grade }));
   }
+
+
+  logAction(message: string, userEmail: string, actionType: string, metadata?: any): Observable<void> {
+    const logsRef = collection(this.firestore, 'logs');
+    return from(addDoc(logsRef, {
+      message,
+      userEmail,
+      timestamp: new Date(),
+      actionType,
+      metadata
+    })).pipe(
+      tap(() => console.log(`[LOG] ${message}`)),
+      map(() => void 0)
+    );
+  }
+  
   
 }

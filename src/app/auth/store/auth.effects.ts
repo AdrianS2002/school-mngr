@@ -5,12 +5,14 @@ import { AuthService } from '../auth.service';
 import { catchError, map, mergeMap, of, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { User } from '../../database/models/user.model';
+import { LogService } from '../../log.service';
 
 @Injectable()
 export class AuthEffects {
   constructor(
     private actions$: Actions,
     private authService: AuthService,
+    private logService: LogService,
     private router: Router
   ) {}
 
@@ -19,8 +21,11 @@ export class AuthEffects {
       ofType(AuthActions.loginStart),
       mergeMap((action) =>
         this.authService.login(action.email, action.password).pipe(
-          tap(user => console.log('Login user received with roles:', user)), // verificare
-          map((user) => AuthActions.loginSuccess({ user })),
+          tap(user => console.log('Login user received with roles:', user)), 
+          map((user) => {
+            this.logService.log(`User ${user.email} logged in`, user.email, 'LOGIN');
+            return AuthActions.loginSuccess({ user });
+          }),
           catchError((error) => of(AuthActions.loginFail({ error: error.message })))
         )
       )
