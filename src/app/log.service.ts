@@ -7,14 +7,28 @@ import { Timestamp } from 'firebase/firestore';
 export class LogService {
   constructor(private firestore: Firestore) {}
 
-  log(message: string, userEmail: string = 'anonymous', actionType: string = 'GENERIC') {
+  log(
+    message: string,
+    userEmail: string = 'anonymous',
+    actionType: string = 'GENERIC',
+    metadata?: any // ✅ al patrulea argument opțional
+  ) {
     const logRef = collection(this.firestore, 'logs');
-    return addDoc(logRef, {
+  
+    const logData: any = {
       message,
       userEmail,
       actionType,
       timestamp: Timestamp.now()
-    });
+    };
+  
+    // ✅ evităm undefined (Firestore nu permite)
+    if (metadata !== undefined) {
+      logData.metadata = metadata;
+    }
+  
+    return addDoc(logRef, logData);
   }
+  
   
 }

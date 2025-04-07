@@ -110,13 +110,24 @@ export class DatabaseService {
   getUserById(userId: string): Observable<User | null> {
     const userRef = doc(this.firestore, `users/${userId}`);
     return from(getDoc(userRef)).pipe(
-      map(snapshot => snapshot.exists() ? new User(
-        snapshot.data()['email'],
-        userId,
-        '',
-        new Date(),
-        snapshot.data()['roles']
-      ) : null)
+      tap((snap) => {
+        if (!snap.exists()) {
+          console.warn(`[Firestore] No user found with ID: ${userId}`);
+        } else {
+          console.log('[Firestore] User fetched:', snap.data());
+        }
+      }),
+      map((snapshot) =>
+        snapshot.exists()
+          ? new User(
+              snapshot.data()['email'],
+              userId,
+              '',
+              new Date(), // poți ignora token aici
+              snapshot.data()['roles'] ?? []
+            )
+          : null
+      )
     );
   }
   
@@ -250,6 +261,24 @@ export class DatabaseService {
   }
 
 
+  getEnrollmentById(enrollmentId: string): Observable<Enrollment | null> {
+    const enrollmentRef = doc(this.firestore, `enrollments/${enrollmentId}`);
+    return from(getDoc(enrollmentRef)).pipe(
+      map(snapshot =>
+        snapshot.exists()
+          ? new Enrollment(
+              enrollmentId,
+              snapshot.data()['courseId'],
+              snapshot.data()['studentId'],
+              snapshot.data()['enrolledAt'].toDate(),
+              snapshot.data()['grade']
+            )
+          : null
+      )
+    );
+  }
+  
+
   logAction(message: string, userEmail: string, actionType: string, metadata?: any): Observable<void> {
     const logsRef = collection(this.firestore, 'logs');
     return from(addDoc(logsRef, {
@@ -261,6 +290,24 @@ export class DatabaseService {
     })).pipe(
       tap(() => console.log(`[LOG] ${message}`)),
       map(() => void 0)
+    );
+  }
+  
+
+  getCourseById(courseId: string): Observable<Course | null> {
+    const courseRef = doc(this.firestore, `courses/${courseId}`);
+    return from(getDoc(courseRef)).pipe(
+      map(snapshot =>
+        snapshot.exists()
+          ? new Course(
+              snapshot.id,
+              snapshot.data()['title'],
+              snapshot.data()['description'],
+              snapshot.data()['professorId'],
+              snapshot.data()['createdAt'].toDate()
+            )
+          : null
+      )
     );
   }
   

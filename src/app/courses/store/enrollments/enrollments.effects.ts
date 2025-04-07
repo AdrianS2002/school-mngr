@@ -4,10 +4,11 @@ import * as EnrollmentActions from './enrollments.actions';
 import { DatabaseService } from '../../../database/database.service';
 import { catchError, map, mergeMap, of } from 'rxjs';
 import { Enrollment } from '../../../database/models/enrollment.model';
+import { LogService } from '../../../log.service';
 
 @Injectable()
 export class EnrollmentsEffects {
-  constructor(private actions$: Actions, private dbService: DatabaseService) {}
+  constructor(private actions$: Actions, private dbService: DatabaseService, private logService: LogService) {}
 
   loadEnrollments$ = createEffect(() =>
     this.actions$.pipe(
@@ -26,28 +27,87 @@ export class EnrollmentsEffects {
       ofType(EnrollmentActions.enrollStudent),
       mergeMap(({ courseId, studentId }) =>
         this.dbService.enrollStudent(courseId, studentId).pipe(
-          map((enrollmentId) =>
-            EnrollmentActions.enrollStudentSuccess({
-              enrollment: new Enrollment(
-                enrollmentId, // Folosești ID-ul real al documentului
-                courseId,
-                studentId,
-                new Date()
+          mergeMap((enrollmentId) =>
+            this.dbService.getUserById(studentId).pipe(
+              mergeMap((user) =>
+                this.dbService.getCourseById(courseId).pipe(
+                  map((course) => {
+                    const email = user?.email || studentId;
+                    const courseTitle = course?.title || courseId;
+  
+                    this.logService.log(
+                      `Student ${email} enrolled in course "${courseTitle}"`,
+                      email,
+                      'ENROLL',
+                      { courseId, enrollmentId, courseTitle }
+                    );
+  
+                    return EnrollmentActions.enrollStudentSuccess({
+                      enrollment: new Enrollment(
+                        enrollmentId,
+                        courseId,
+                        studentId,
+                        new Date()
+                      )
+                    });
+                  })
+                )
               )
-            })
+            )
           ),
-          catchError(error => of(EnrollmentActions.enrollStudentFail({ error: error.message })))
+          catchError(error =>
+            of(EnrollmentActions.enrollStudentFail({ error: error.message }))
+          )
         )
       )
     )
   );
+  
+  
 
   unenrollStudent$ = createEffect(() =>
     this.actions$.pipe(
       ofType(EnrollmentActions.unenrollStudent),
       mergeMap(({ enrollmentId }) =>
-        this.dbService.unenrollById(enrollmentId).pipe(
-          map(() => EnrollmentActions.unenrollStudentSuccess({ enrollmentId })),
+        this.dbService.getEnrollmentById(enrollmentId).pipe(
+          mergeMap((enrollment) => {
+            if (!enrollment) {
+              this.logService.log(
+                `Tried to unenroll, but enrollment ${enrollmentId} was not found.`,
+                'system',
+                'UNENROLL_FAILED',
+                { enrollmentId }
+              );
+              return of(EnrollmentActions.unenrollStudentFail({ error: 'Enrollment not found' }));
+            }
+            return this.dbService.getUserById(enrollment.studentId).pipe(
+              mergeMap((user) =>
+                this.dbService.getCourseById(enrollment.courseId).pipe(
+                  mergeMap((course) =>
+                    this.dbService.unenrollById(enrollmentId).pipe(
+                      map(() => {
+                        const email = user?.email || enrollment.studentId;
+                        const courseTitle = course?.title || enrollment.courseId;
+  
+                        this.logService.log(
+                          `Student ${email} unenrolled from course "${courseTitle}"`,
+                          email,
+                          'UNENROLL',
+                          {
+                            enrollmentId,
+                            courseId: enrollment.courseId,
+                            courseTitle
+                          }
+                        );
+  
+                        return EnrollmentActions.unenrollStudentSuccess({ enrollmentId });
+                      })
+                    )
+                  )
+                )
+              )
+            );
+          }),
           catchError(error =>
             of(EnrollmentActions.unenrollStudentFail({ error: error.message }))
           )
@@ -55,6 +115,8 @@ export class EnrollmentsEffects {
       )
     )
   );
+  
+  
 
   loadEnrollmentsForStudent$ = createEffect(() =>
     this.actions$.pipe(
@@ -76,13 +138,63 @@ export class EnrollmentsEffects {
     this.actions$.pipe(
       ofType(EnrollmentActions.assignGrade),
       mergeMap(({ enrollmentId, grade }) =>
-        this.dbService.assignGrade(enrollmentId, grade).pipe(
-          map(() => EnrollmentActions.assignGradeSuccess({ enrollmentId, grade })),
-          catchError(error => of(EnrollmentActions.assignGradeFail({ error: error.message })))
+        this.dbService.getEnrollmentById(enrollmentId).pipe(
+          mergeMap((enrollment) => {
+            if (!enrollment) {
+              this.logService.log(
+                `Tried to assign grade ${grade}, but enrollment ${enrollmentId} was not found.`,
+                'system',
+                'ASSIGN_GRADE_FAILED',
+                { enrollmentId, grade }
+              );
+              return of(
+                EnrollmentActions.assignGradeFail({ error: 'Enrollment not found' })
+              );
+            }
+  
+            return this.dbService.getUserById(enrollment.studentId).pipe(
+              mergeMap((student) =>
+                this.dbService.getCourseById(enrollment.courseId).pipe(
+                  mergeMap((course) =>
+                    this.dbService.assignGrade(enrollmentId, grade).pipe(
+                      map(() => {
+                        const courseTitle = course?.title || enrollment.courseId;
+                        const studentEmail = student?.email || enrollment.studentId;
+  
+                        const userDataStr = localStorage.getItem('userData');
+                        const professorEmail = userDataStr ? JSON.parse(userDataStr).email : 'unknown';
+  
+                        this.logService.log(
+                          `Grade ${grade} assigned to ${studentEmail} for course "${courseTitle}" by ${professorEmail}`,
+                          professorEmail,
+                          'ASSIGN_GRADE',
+                          {
+                            enrollmentId,
+                            studentId: enrollment.studentId,
+                            studentEmail,
+                            courseId: enrollment.courseId,
+                            courseTitle,
+                            grade
+                          }
+                        );
+  
+                        return EnrollmentActions.assignGradeSuccess({ enrollmentId, grade });
+                      })
+                    )
+                  )
+                )
+              )
+            );
+          }),
+          catchError(error =>
+            of(EnrollmentActions.assignGradeFail({ error: error.message }))
+          )
         )
       )
     )
   );
+  
+  
 
   enrollStudentSuccessMessage$ = createEffect(() =>
     this.actions$.pipe(
