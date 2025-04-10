@@ -3,10 +3,11 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as UserActions from './users.actions';
 import { DatabaseService } from '../../database/database.service';
 import { catchError, delay, map, mergeMap, of, tap } from 'rxjs';
+import { LogService } from '../../log.service';
 
 @Injectable()
 export class UsersEffects {
-  constructor(private actions$: Actions, private dbService: DatabaseService) {}
+  constructor(private actions$: Actions, private dbService: DatabaseService, private logService: LogService) {}
 
   loadUsers$ = createEffect(() =>
     this.actions$.pipe(
@@ -24,25 +25,61 @@ export class UsersEffects {
     this.actions$.pipe(
       ofType(UserActions.deleteUser),
       mergeMap(({ userId }) =>
-        this.dbService.deleteUser(userId).pipe(
-          map(() => UserActions.deleteUserSuccess({ userId })),
-          catchError(error => of(UserActions.deleteUserFail({ error: error.message })))
+        this.dbService.getUserById(userId).pipe(
+          mergeMap((user) =>
+            this.dbService.deleteUser(userId).pipe(
+              map(() => {
+                const targetEmail = user?.email || userId;
+                const actorData = localStorage.getItem('userData');
+                const performedBy = actorData ? JSON.parse(actorData).email : 'unknown';
+  
+                this.logService.log(
+                  `User ${targetEmail} was deleted by ${performedBy}`,
+                  performedBy,
+                  'DELETE_USER',
+                  { userId, targetEmail }
+                );
+  
+                return UserActions.deleteUserSuccess({ userId });
+              })
+            )
+          )
         )
-      )
+      ),
+      catchError(error => of(UserActions.deleteUserFail({ error: error.message })))
     )
   );
-
+  
   assignRole$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UserActions.assignRole),
       mergeMap(({ userId, roles }) =>
-        this.dbService.assignRoles(userId, roles).pipe(
-          map(() => UserActions.assignRoleSuccess({ userId, roles })),
-          catchError(error => of(UserActions.assignRoleFail({ error: error.message })))
+        this.dbService.getUserById(userId).pipe(
+          mergeMap((user) =>
+            this.dbService.assignRoles(userId, roles).pipe(
+              map(() => {
+                const targetEmail = user?.email || userId;
+                const actorData = localStorage.getItem('userData');
+                const performedBy = actorData ? JSON.parse(actorData).email : 'unknown';
+  
+                this.logService.log(
+                  `Roles ${roles.join(', ')} assigned to ${targetEmail} by ${performedBy}`,
+                  performedBy,
+                  'ASSIGN_ROLE',
+                  { userId, targetEmail, roles }
+                );
+  
+                return UserActions.assignRoleSuccess({ userId, roles });
+              })
+            )
+          )
         )
-      )
+      ),
+      catchError(error => of(UserActions.assignRoleFail({ error: error.message })))
     )
   );
+  
+  
 
   deleteUserSuccessMessage$ = createEffect(() =>
     this.actions$.pipe(
