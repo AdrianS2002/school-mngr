@@ -5,6 +5,7 @@ import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { DatabaseService } from "../database/database.service";
 import { LogService } from "../log.service";
+import { LogActionType } from "../log-action-type.enum";
 
 
 interface AuthResponseData {
@@ -76,7 +77,7 @@ export class AuthService {
     const userDataStr = localStorage.getItem('userData');
     const userEmail = userDataStr ? JSON.parse(userDataStr).email : 'anon';
 
-    this.logService.log(`User ${userEmail} logged out`, userEmail, 'LOGOUT');
+    this.logService.log(`User ${userEmail} logged out`, userEmail, LogActionType.LOGOUT);
 
     this.user.next(null);
     console.log('Logging out...');

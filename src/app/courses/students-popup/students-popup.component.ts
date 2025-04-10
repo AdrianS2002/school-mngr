@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import * as EnrollmentActions from '../store/enrollments/enrollments.actions';
 import { Store } from '@ngrx/store';
 import { LogService } from '../../log.service';
+import { LogActionType } from '../../log-action-type.enum';
 
 @Component({
   selector: 'app-students-popup',
@@ -73,7 +74,7 @@ export class StudentsPopupComponent  {
             this.logService.log(
               `Student ${email} enrolled in course "${courseTitle}"`,
               email,
-              'ENROLL',
+              LogActionType.ENROLL,
               { enrollmentId, courseId: this.courseId, courseTitle }
             );
           });
@@ -108,7 +109,7 @@ export class StudentsPopupComponent  {
             this.logService.log(
               `Student ${email} unenrolled from course "${courseTitle}"`,
               email,
-              'UNENROLL',
+              LogActionType.UNENROLL,
               {
                 enrollmentId: enrollment.enrollmentId,
                 courseId: this.courseId,

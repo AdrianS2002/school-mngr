@@ -5,6 +5,7 @@ import { DatabaseService } from '../../../database/database.service';
 import { catchError, map, mergeMap, of } from 'rxjs';
 import { Enrollment } from '../../../database/models/enrollment.model';
 import { LogService } from '../../../log.service';
+import { LogActionType } from '../../../log-action-type.enum';
 
 @Injectable()
 export class EnrollmentsEffects {
@@ -38,7 +39,7 @@ export class EnrollmentsEffects {
                     this.logService.log(
                       `Student ${email} enrolled in course "${courseTitle}"`,
                       email,
-                      'ENROLL',
+                      LogActionType.ENROLL,
                       { courseId, enrollmentId, courseTitle }
                     );
   
@@ -75,7 +76,7 @@ export class EnrollmentsEffects {
               this.logService.log(
                 `Tried to unenroll, but enrollment ${enrollmentId} was not found.`,
                 'system',
-                'UNENROLL_FAILED',
+                LogActionType.UNENROLL_FAILED,
                 { enrollmentId }
               );
               return of(EnrollmentActions.unenrollStudentFail({ error: 'Enrollment not found' }));
@@ -92,7 +93,7 @@ export class EnrollmentsEffects {
                         this.logService.log(
                           `Student ${email} unenrolled from course "${courseTitle}"`,
                           email,
-                          'UNENROLL',
+                          LogActionType.UNENROLL,
                           {
                             enrollmentId,
                             courseId: enrollment.courseId,
@@ -144,7 +145,7 @@ export class EnrollmentsEffects {
               this.logService.log(
                 `Tried to assign grade ${grade}, but enrollment ${enrollmentId} was not found.`,
                 'system',
-                'ASSIGN_GRADE_FAILED',
+                LogActionType.ASSIGN_GRADE_FAILED,
                 { enrollmentId, grade }
               );
               return of(
@@ -167,7 +168,7 @@ export class EnrollmentsEffects {
                         this.logService.log(
                           `Grade ${grade} assigned to ${studentEmail} for course "${courseTitle}" by ${professorEmail}`,
                           professorEmail,
-                          'ASSIGN_GRADE',
+                          LogActionType.ASSIGN_GRADE,
                           {
                             enrollmentId,
                             studentId: enrollment.studentId,
