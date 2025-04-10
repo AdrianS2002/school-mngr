@@ -6,6 +6,7 @@ import { DatabaseService } from '../../database/database.service';
 import { Router } from '@angular/router';
 import { Course } from '../../database/models/course.model';
 import { LogService } from '../../log.service';
+import { LogActionType } from '../../log-action-type.enum';
 
 @Injectable()
 export class CoursesEffects {
@@ -49,7 +50,7 @@ export class CoursesEffects {
                 this.logService.log(
                   `Course "${course.title}" created by ${email}`,
                   email,
-                  'CREATE_COURSE',
+                  LogActionType.CREATE_COURSE,
                   { courseId }
                 );
   
@@ -76,7 +77,7 @@ export class CoursesEffects {
               this.logService.log(
                 `Attempted to update course "${courseId}", but it was not found.`,
                 'system',
-                'UPDATE_COURSE_FAILED',
+                LogActionType.UPDATE_COURSE_FAILED,
                 { courseId }
               );
               return of(CourseActions.updateCourseFail({ error: 'Course not found' }));
@@ -91,7 +92,7 @@ export class CoursesEffects {
                     this.logService.log(
                       `Course "${existingCourse.title}" updated by ${email}`,
                       email,
-                      'UPDATE_COURSE',
+                      LogActionType.UPDATE_COURSE,
                       { courseId, updates: course }
                     );
   
@@ -121,7 +122,7 @@ export class CoursesEffects {
               this.logService.log(
                 `Attempted to delete course "${courseId}", but it was not found.`,
                 'system',
-                'DELETE_COURSE_FAILED',
+                LogActionType.DELETE_COURSE_FAILED,
                 { courseId }
               );
               return of(CourseActions.deleteCourseFail({ error: 'Course not found' }));
@@ -136,7 +137,7 @@ export class CoursesEffects {
                     this.logService.log(
                       `Course "${course.title}" deleted by ${email}.`,
                       email,
-                      'DELETE_COURSE',
+                      LogActionType.DELETE_COURSE,
                       { courseId }
                     );
   

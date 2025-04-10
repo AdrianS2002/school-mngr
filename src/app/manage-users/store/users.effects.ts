@@ -4,6 +4,7 @@ import * as UserActions from './users.actions';
 import { DatabaseService } from '../../database/database.service';
 import { catchError, delay, map, mergeMap, of, tap } from 'rxjs';
 import { LogService } from '../../log.service';
+import { LogActionType } from '../../log-action-type.enum';
 
 @Injectable()
 export class UsersEffects {
@@ -36,7 +37,7 @@ export class UsersEffects {
                 this.logService.log(
                   `User ${targetEmail} was deleted by ${performedBy}`,
                   performedBy,
-                  'DELETE_USER',
+                  LogActionType.DELETE_USER,
                   { userId, targetEmail }
                 );
   
@@ -65,7 +66,7 @@ export class UsersEffects {
                 this.logService.log(
                   `Roles ${roles.join(', ')} assigned to ${targetEmail} by ${performedBy}`,
                   performedBy,
-                  'ASSIGN_ROLE',
+                  LogActionType.ASSIGN_ROLE,
                   { userId, targetEmail, roles }
                 );
   
