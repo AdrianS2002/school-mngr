@@ -30,8 +30,8 @@ export const deleteCourse = createAction(
 );
 export const deleteCourseSuccess = createAction(
     '[Courses] Delete Course Success',
-    props<{ courseId: string }>()
-);
+    props<{ courseId: string, course: Course }>() 
+  );
 export const deleteCourseFail = createAction(
     '[Courses] Delete Course Fail',
     props<{ error: string }>()

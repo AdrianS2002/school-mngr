@@ -50,8 +50,9 @@ export const unenrollStudent = createAction(
   
   export const unenrollStudentSuccess = createAction(
     '[Enrollments] Unenroll Student Success',
-    props<{ enrollmentId: string }>()
+    props<{ enrollmentId: string; studentId: string; courseId: string }>()
   );
+  
 export const unenrollStudentFail = createAction(
     '[Enrollments] Unenroll Student Fail', 
     props<{ error: string }>()
@@ -62,8 +63,8 @@ export const assignGrade = createAction(
      props<{ enrollmentId: string; grade: number }>()
 );
 export const assignGradeSuccess = createAction(
-    '[Enrollments] Assign Grade Success',
-     props<{ enrollmentId: string; grade: number }>()
+  '[Enrollments] Assign Grade Success',
+  props<{ enrollmentId: string; grade: number; studentId: string; courseId: string }>()
 );
 export const assignGradeFail = createAction(
     '[Enrollments] Assign Grade Fail',

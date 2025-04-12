@@ -209,11 +209,11 @@ export class AuthService {
         userDataObj.id,
         userDataObj._token,
         new Date(userDataObj._tokenExpirationDate),
-        userDataObj.roles ?? []  // dacă nu există roluri salvate, punem array gol
+        userDataObj.roles ?? [] 
       );
       if (loadedUser.token) {
         this.user.next(loadedUser);
-        // Aici poți adăuga un auto-logout timer dacă vrei
+       
       }
     } catch (error) {
       console.error("Auto login failed", error);

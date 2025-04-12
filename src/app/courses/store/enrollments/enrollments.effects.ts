@@ -28,33 +28,15 @@ export class EnrollmentsEffects {
       ofType(EnrollmentActions.enrollStudent),
       mergeMap(({ courseId, studentId }) =>
         this.dbService.enrollStudent(courseId, studentId).pipe(
-          mergeMap((enrollmentId) =>
-            this.dbService.getUserById(studentId).pipe(
-              mergeMap((user) =>
-                this.dbService.getCourseById(courseId).pipe(
-                  map((course) => {
-                    const email = user?.email || studentId;
-                    const courseTitle = course?.title || courseId;
-  
-                    this.logService.log(
-                      `Student ${email} enrolled in course "${courseTitle}"`,
-                      email,
-                      LogActionType.ENROLL,
-                      { courseId, enrollmentId, courseTitle }
-                    );
-  
-                    return EnrollmentActions.enrollStudentSuccess({
-                      enrollment: new Enrollment(
-                        enrollmentId,
-                        courseId,
-                        studentId,
-                        new Date()
-                      )
-                    });
-                  })
-                )
+          map((enrollmentId) =>
+            EnrollmentActions.enrollStudentSuccess({
+              enrollment: new Enrollment(
+                enrollmentId,
+                courseId,
+                studentId,
+                new Date()
               )
-            )
+            })
           ),
           catchError(error =>
             of(EnrollmentActions.enrollStudentFail({ error: error.message }))
@@ -65,6 +47,7 @@ export class EnrollmentsEffects {
   );
   
   
+  
 
   unenrollStudent$ = createEffect(() =>
     this.actions$.pipe(
@@ -73,39 +56,16 @@ export class EnrollmentsEffects {
         this.dbService.getEnrollmentById(enrollmentId).pipe(
           mergeMap((enrollment) => {
             if (!enrollment) {
-              this.logService.log(
-                `Tried to unenroll, but enrollment ${enrollmentId} was not found.`,
-                'system',
-                LogActionType.UNENROLL_FAILED,
-                { enrollmentId }
-              );
-              return of(EnrollmentActions.unenrollStudentFail({ error: 'Enrollment not found' }));
+              return of(EnrollmentActions.unenrollStudentFail({ error: 'Enrollment not found.' }));
             }
-            return this.dbService.getUserById(enrollment.studentId).pipe(
-              mergeMap((user) =>
-                this.dbService.getCourseById(enrollment.courseId).pipe(
-                  mergeMap((course) =>
-                    this.dbService.unenrollById(enrollmentId).pipe(
-                      map(() => {
-                        const email = user?.email || enrollment.studentId;
-                        const courseTitle = course?.title || enrollment.courseId;
   
-                        this.logService.log(
-                          `Student ${email} unenrolled from course "${courseTitle}"`,
-                          email,
-                          LogActionType.UNENROLL,
-                          {
-                            enrollmentId,
-                            courseId: enrollment.courseId,
-                            courseTitle
-                          }
-                        );
-  
-                        return EnrollmentActions.unenrollStudentSuccess({ enrollmentId });
-                      })
-                    )
-                  )
-                )
+            return this.dbService.unenrollById(enrollmentId).pipe(
+              map(() =>
+                EnrollmentActions.unenrollStudentSuccess({
+                  enrollmentId,
+                  studentId: enrollment.studentId,
+                  courseId: enrollment.courseId
+                })
               )
             );
           }),
@@ -116,6 +76,7 @@ export class EnrollmentsEffects {
       )
     )
   );
+  
   
   
 
@@ -142,48 +103,19 @@ export class EnrollmentsEffects {
         this.dbService.getEnrollmentById(enrollmentId).pipe(
           mergeMap((enrollment) => {
             if (!enrollment) {
-              this.logService.log(
-                `Tried to assign grade ${grade}, but enrollment ${enrollmentId} was not found.`,
-                'system',
-                LogActionType.ASSIGN_GRADE_FAILED,
-                { enrollmentId, grade }
-              );
               return of(
                 EnrollmentActions.assignGradeFail({ error: 'Enrollment not found' })
               );
             }
   
-            return this.dbService.getUserById(enrollment.studentId).pipe(
-              mergeMap((student) =>
-                this.dbService.getCourseById(enrollment.courseId).pipe(
-                  mergeMap((course) =>
-                    this.dbService.assignGrade(enrollmentId, grade).pipe(
-                      map(() => {
-                        const courseTitle = course?.title || enrollment.courseId;
-                        const studentEmail = student?.email || enrollment.studentId;
-  
-                        const userDataStr = localStorage.getItem('userData');
-                        const professorEmail = userDataStr ? JSON.parse(userDataStr).email : 'unknown';
-  
-                        this.logService.log(
-                          `Grade ${grade} assigned to ${studentEmail} for course "${courseTitle}" by ${professorEmail}`,
-                          professorEmail,
-                          LogActionType.ASSIGN_GRADE,
-                          {
-                            enrollmentId,
-                            studentId: enrollment.studentId,
-                            studentEmail,
-                            courseId: enrollment.courseId,
-                            courseTitle,
-                            grade
-                          }
-                        );
-  
-                        return EnrollmentActions.assignGradeSuccess({ enrollmentId, grade });
-                      })
-                    )
-                  )
-                )
+            return this.dbService.assignGrade(enrollmentId, grade).pipe(
+              map(() =>
+                EnrollmentActions.assignGradeSuccess({
+                  enrollmentId,
+                  grade,
+                  studentId: enrollment.studentId,
+                  courseId: enrollment.courseId
+                })
               )
             );
           }),
@@ -194,6 +126,7 @@ export class EnrollmentsEffects {
       )
     )
   );
+  
   
   
 
