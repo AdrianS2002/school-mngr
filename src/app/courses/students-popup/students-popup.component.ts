@@ -62,32 +62,11 @@ export class StudentsPopupComponent  {
   }
 
   enrollStudent(studentId: string) {
-    this.dbService.enrollStudent(this.courseId, studentId).subscribe({
-      next: (enrollmentId) => {
-        // Obține emailul și titlul cursului
-        this.dbService.getUserById(studentId).subscribe((user) => {
-          const email = user?.email || studentId;
-  
-          this.dbService.getCourseById(this.courseId).subscribe((course) => {
-            const courseTitle = course?.title || this.courseId;
-  
-            this.logService.log(
-              `Student ${email} enrolled in course "${courseTitle}"`,
-              email,
-              LogActionType.ENROLL,
-              { enrollmentId, courseId: this.courseId, courseTitle }
-            );
-          });
-        });
-  
-        this.successMessage = 'Student enrolled successfully!';
-        this.clearMessagesAfterDelay();
-      },
-      error: () => {
-        this.errorMessage = 'Error enrolling student.';
-        this.clearMessagesAfterDelay();
-      }
-    });
+    this.store.dispatch(
+      EnrollmentActions.enrollStudent({ courseId: this.courseId, studentId })
+    );
+    this.successMessage = 'Student enrolled successfully!';
+    this.clearMessagesAfterDelay();
   }
   
   unenrollStudent(studentId: string) {
@@ -98,36 +77,12 @@ export class StudentsPopupComponent  {
       return;
     }
   
-    this.dbService.unenrollById(enrollment.enrollmentId).subscribe({
-      next: () => {
-        this.dbService.getUserById(studentId).subscribe((user) => {
-          const email = user?.email || studentId;
-  
-          this.dbService.getCourseById(this.courseId).subscribe((course) => {
-            const courseTitle = course?.title || this.courseId;
-  
-            this.logService.log(
-              `Student ${email} unenrolled from course "${courseTitle}"`,
-              email,
-              LogActionType.UNENROLL,
-              {
-                enrollmentId: enrollment.enrollmentId,
-                courseId: this.courseId,
-                courseTitle
-              }
-            );
-          });
-        });
-  
-        this.successMessage = 'Student unenrolled successfully!';
-        this.clearMessagesAfterDelay();
-        this.loadStudents();
-      },
-      error: () => {
-        this.errorMessage = 'Error unenrolling student.';
-        this.clearMessagesAfterDelay();
-      }
-    });
+    this.store.dispatch(
+      EnrollmentActions.unenrollStudent({ enrollmentId: enrollment.enrollmentId })
+    );
+    this.successMessage = 'Student unenrolled successfully!';
+    this.clearMessagesAfterDelay();
+    this.loadStudents();
   }
   
 

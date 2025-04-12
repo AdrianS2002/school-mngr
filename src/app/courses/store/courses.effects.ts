@@ -14,8 +14,8 @@ export class CoursesEffects {
     private actions$: Actions,
     private dbService: DatabaseService,
     private router: Router,
-    private logService: LogService 
-  ) {}
+    private logService: LogService
+  ) { }
 
   loadCourses$ = createEffect(() =>
     this.actions$.pipe(
@@ -36,28 +36,14 @@ export class CoursesEffects {
       ofType(CourseActions.addCourse),
       mergeMap(({ course }) =>
         this.dbService.createCourse({ ...course, createdAt: new Date() } as Course).pipe(
-          mergeMap((courseId) =>
-            this.dbService.getUserById(course.professorId).pipe(
-              map((user) => {
-                const fullCourse: Course = {
-                  id: courseId,
-                  ...course,
-                  createdAt: new Date()
-                };
-  
-                const email = user?.email || course.professorId;
-  
-                this.logService.log(
-                  `Course "${course.title}" created by ${email}`,
-                  email,
-                  LogActionType.CREATE_COURSE,
-                  { courseId }
-                );
-  
-                return CourseActions.addCourseSuccess({ course: fullCourse });
-              })
-            )
-          ),
+          map((courseId) => {
+            const fullCourse: Course = {
+              id: courseId,
+              ...course,
+              createdAt: new Date()
+            };
+            return CourseActions.addCourseSuccess({ course: fullCourse });
+          }),
           tap(() => this.router.navigate(['/courses'])),
           catchError((err) =>
             of(CourseActions.addCourseFail({ error: err.message }))
@@ -66,42 +52,13 @@ export class CoursesEffects {
       )
     )
   );
-  
+
   updateCourse$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CourseActions.updateCourse),
       mergeMap(({ courseId, course }) =>
-        this.dbService.getCourseById(courseId).pipe(
-          mergeMap((existingCourse) => {
-            if (!existingCourse) {
-              this.logService.log(
-                `Attempted to update course "${courseId}", but it was not found.`,
-                'system',
-                LogActionType.UPDATE_COURSE_FAILED,
-                { courseId }
-              );
-              return of(CourseActions.updateCourseFail({ error: 'Course not found' }));
-            }
-  
-            return this.dbService.getUserById(existingCourse.professorId).pipe(
-              mergeMap((user) =>
-                from(this.dbService.updateCourse(courseId, course)).pipe(
-                  map(() => {
-                    const email = user?.email || existingCourse.professorId;
-  
-                    this.logService.log(
-                      `Course "${existingCourse.title}" updated by ${email}`,
-                      email,
-                      LogActionType.UPDATE_COURSE,
-                      { courseId, updates: course }
-                    );
-  
-                    return CourseActions.updateCourseSuccess({ courseId, course });
-                  })
-                )
-              )
-            );
-          }),
+        from(this.dbService.updateCourse(courseId, course)).pipe(
+          map(() => CourseActions.updateCourseSuccess({ courseId, course })),
           tap(() => this.router.navigate(['/courses'])),
           catchError((err) =>
             of(CourseActions.updateCourseFail({ error: err.message }))
@@ -110,7 +67,6 @@ export class CoursesEffects {
       )
     )
   );
-  
 
   deleteCourse$ = createEffect(() =>
     this.actions$.pipe(
@@ -119,43 +75,14 @@ export class CoursesEffects {
         this.dbService.getCourseById(courseId).pipe(
           mergeMap((course) => {
             if (!course) {
-              this.logService.log(
-                `Attempted to delete course "${courseId}", but it was not found.`,
-                'system',
-                LogActionType.DELETE_COURSE_FAILED,
-                { courseId }
-              );
               return of(CourseActions.deleteCourseFail({ error: 'Course not found' }));
             }
-  
-            return this.dbService.getUserById(course.professorId).pipe(
-              mergeMap((user) =>
-                this.dbService.deleteCourse(courseId).pipe(
-                  map(() => {
-                    const email = user?.email || course.professorId;
-  
-                    this.logService.log(
-                      `Course "${course.title}" deleted by ${email}.`,
-                      email,
-                      LogActionType.DELETE_COURSE,
-                      { courseId }
-                    );
-  
-                    return CourseActions.deleteCourseSuccess({ courseId });
-                  })
-                )
-              )
+            return this.dbService.deleteCourse(courseId).pipe(
+              map(() => CourseActions.deleteCourseSuccess({ courseId, course }))
             );
-          }),
-          catchError((err) =>
-            of(CourseActions.deleteCourseFail({ error: err.message }))
-          )
+          })
         )
       )
     )
   );
-  
-  
-  
-  
 }
