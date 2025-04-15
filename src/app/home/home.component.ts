@@ -7,6 +7,8 @@ import { selectIsAdmin, selectIsAuthenticated, selectIsProfessor, selectIsStuden
 import { Course } from '../database/models/course.model';
 import { Router } from '@angular/router';
 import { DatabaseService } from '../database/database.service';
+import { exportLogsToTXT } from '../manage-users/logToTXT';
+import { getFirestore } from 'firebase/firestore';
 
 @Component({
   selector: 'app-home',
@@ -52,6 +54,25 @@ export class HomeComponent implements OnInit  {
         });
       }
     });
+  }
+
+  async exportLogs() {
+    try {
+      const firestore = getFirestore(); 
+      const content = await exportLogsToTXT(firestore);
+  
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+  
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'logs.txt';
+      link.click();
+  
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting logs:', error);
+    }
   }
   
 
