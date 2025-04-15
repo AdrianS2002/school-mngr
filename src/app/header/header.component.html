@@ -8,8 +8,22 @@
         <a (click)="navigateToCourses()" class="nav-item">Courses</a>
         <a (click)="navigateToContact()" class="nav-item">Contact</a>
         <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search Courses">
-        </div>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search Courses"
+              [(ngModel)]="searchQuery"
+              (input)="onSearchChange()"
+            />
+            <ul class="search-suggestions" *ngIf="filteredCourses.length > 0">
+              <li
+                *ngFor="let course of filteredCourses"
+                (click)="navigateToCourse(course.id)"
+              >
+                {{ course.title }}
+              </li>
+            </ul>
+          </div>
         <div class="auth-buttons" *ngIf="isLoggedIn; else loggedOutTemplate">
             <button class="logout-btn" (click)="logout()">Logout</button>
         </div>

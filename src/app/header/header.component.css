@@ -144,3 +144,25 @@
 .btn-login:hover{
     background-color: var(--button-hover-bg);
 }
+.search-suggestions {
+    background: white;
+    border: 1px solid #ccc;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    width: 200px;
+    z-index: 999;
+  }
+  
+  .search-suggestions li {
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .search-suggestions li:hover {
+    background-color: #f0f0f0;
+  }
+  
