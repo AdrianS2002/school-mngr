@@ -199,6 +199,8 @@ footer {
 
 .msg-format{
     display: flex;
+    text-align: center;
+    justify-content: center;
 }
 
 .no-courses img {
@@ -207,7 +209,7 @@ footer {
 }
 
 .view-logs{
-    background-color: #d00eb6;
+    background-color: #210ed0;
     color: white;
     cursor: pointer;
 
@@ -216,5 +218,18 @@ footer {
 }
 
 .view-logs:hover{
-    background-color: #af2b9e;
+    background-color: #1e1380;
 }    
+
+.download-logs{
+    background-color: #d00eb6;
+    color: white;
+    cursor: pointer;
+
+    margin-left: 2rem;
+    margin-top: 20px;
+}
+
+.download-logs:hover{
+    background-color: #af2b9e;
+}  

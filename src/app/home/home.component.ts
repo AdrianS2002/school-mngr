@@ -91,6 +91,10 @@ export class HomeComponent implements OnInit  {
   navigateToManageUsers() {
     this.router.navigate(['/manage-users']);
   }
+
+  navigateToLogs(){
+    this.router.navigate(['/logs']);
+  }
 }
 
 

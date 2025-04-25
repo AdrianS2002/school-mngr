@@ -1,0 +1,11 @@
+<div class="ag-theme-alpine w-full" style="height: 800px; width: 100%">
+    <ag-grid-angular
+      [gridOptions]="gridOptions"
+      [columnDefs]="columnDefs"
+      [rowData]="rowData"
+      (gridReady)="onGridReady($event)"
+      class="w-full h-full"
+      domLayout="autoHeight"
+    ></ag-grid-angular>
+  </div>
+  

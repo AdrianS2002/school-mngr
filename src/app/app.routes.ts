@@ -7,6 +7,7 @@ import { HomeComponent } from './home/home.component';
 import { AddEditCourseComponent } from './courses/add-edit-courses/add-edit-courses.component';
 import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { AuthGuard } from './auth.guard';
+import { LogsComponent } from './logs/logs.component';
 
 
 export const routes: Routes = [
@@ -18,5 +19,6 @@ export const routes: Routes = [
     { path: 'home', component: HomeComponent },
     { path: 'add-course', component:  AddEditCourseComponent},
     { path: 'edit-course/:id', component: AddEditCourseComponent },
-    { path: 'manage-users', component: ManageUsersComponent, canActivate: [AuthGuard] }
+    { path: 'manage-users', component: ManageUsersComponent, canActivate: [AuthGuard] },
+    { path: 'logs', component: LogsComponent, canActivate: [AuthGuard] }
 ];
